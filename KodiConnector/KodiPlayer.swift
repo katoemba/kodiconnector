@@ -12,7 +12,9 @@ import RxSwift
 
 public class KodiPlayer: PlayerProtocol {
     private let userDefaults: UserDefaults
-    public var controllerType: String
+    public var controllerType: String {
+        return "Kodi"
+    }
     
     public var uniqueID: String {
         return "\(KodiPlayer.uniqueIDForPlayer(self))"
@@ -44,12 +46,11 @@ public class KodiPlayer: PlayerProtocol {
         }
     }
 
-    
-    public var status: StatusProtocol
-    
-    public var control: ControlProtocol
-    
-    public var browse: BrowseProtocol
+    public private(set) var status = KodiStatus() as StatusProtocol
+
+    public private(set) var control = KodiControl() as ControlProtocol
+
+    public private(set) var browse = KodiBrowse() as BrowseProtocol
     
     private static func uniqueIDForPlayer(_ player: KodiPlayer) -> String {
         return uniqueIDForPlayer(host: player.host, port: player.port)
