@@ -12,6 +12,7 @@ import RxSwift
 
 public class KodiPlayer: PlayerProtocol {
     private let userDefaults: UserDefaults
+    private var kodi: KodiProtocol
     public var controllerType: String {
         return "Kodi"
     }
@@ -33,7 +34,7 @@ public class KodiPlayer: PlayerProtocol {
     public private(set) var connectionWarning = nil as String?
 
     public var description: String {
-        return "Kodi"
+        return "Kodi \(version)"
     }
     
     public var connectionProperties: [String : Any] {
@@ -46,11 +47,18 @@ public class KodiPlayer: PlayerProtocol {
         }
     }
 
-    public private(set) var status = KodiStatus() as StatusProtocol
+    private var kodiStatus: KodiStatus
+    public  var status: StatusProtocol {
+        return kodiStatus
+    }
 
-    public private(set) var control = KodiControl() as ControlProtocol
+    public var control : ControlProtocol {
+        return KodiControl(kodi: kodi)
+    }
 
-    public private(set) var browse = KodiBrowse() as BrowseProtocol
+    public var browse : BrowseProtocol {
+        return KodiBrowse(kodi: kodi)
+    }
     
     private static func uniqueIDForPlayer(_ player: KodiPlayer) -> String {
         return uniqueIDForPlayer(host: player.host, port: player.port)
@@ -66,7 +74,8 @@ public class KodiPlayer: PlayerProtocol {
     private var serialScheduler: SchedulerType?
     private let bag = DisposeBag()
 
-    public init(name: String,
+    public init(kodi: KodiProtocol? = nil,
+                name: String,
                 host: String,
                 port: Int,
                 password: String? = nil,
@@ -75,6 +84,8 @@ public class KodiPlayer: PlayerProtocol {
                 discoverMode: DiscoverMode = .automatic,
                 connectionWarning: String? = nil,
                 userDefaults: UserDefaults) {
+        self.userDefaults = userDefaults
+        self.kodi = kodi ?? KodiWrapper(kodi: KodiAddress(ip: host, port: port))
         self.name = name
         self.host = host
         self.port = port
@@ -89,7 +100,8 @@ public class KodiPlayer: PlayerProtocol {
         self.connectionWarning = connectionWarning
         self.version = version
         self.discoverMode = discoverMode
-        self.userDefaults = userDefaults
+        
+        kodiStatus = KodiStatus(kodi: self.kodi, scheduler: self.scheduler)
     }
     
     public func copy() -> PlayerProtocol {
@@ -97,9 +109,11 @@ public class KodiPlayer: PlayerProtocol {
     }
     
     public func activate() {
+        kodiStatus.startMonitoring()
     }
     
     public func deactivate() {
+        kodiStatus.stopMonitoring()
     }
     
     public var settings: [PlayerSettingGroup] {

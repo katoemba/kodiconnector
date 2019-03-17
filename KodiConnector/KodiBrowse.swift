@@ -12,6 +12,12 @@ import RxSwift
 import RxCocoa
 
 public class KodiBrowse: BrowseProtocol {
+    private var kodi: KodiProtocol
+    
+    public init(kodi: KodiProtocol) {
+        self.kodi = kodi
+    }
+    
     public func songsByArtist(_ artist: Artist) -> Observable<[Song]> {
         return Observable.empty()
     }
@@ -37,19 +43,19 @@ public class KodiBrowse: BrowseProtocol {
     }
     
     public func albumBrowseViewModel() -> AlbumBrowseViewModel {
-        return KodiAlbumBrowseViewModel()
+        return KodiAlbumBrowseViewModel(kodi: kodi)
     }
     
     public func albumBrowseViewModel(_ artist: Artist) -> AlbumBrowseViewModel {
-        return KodiAlbumBrowseViewModel()
+        return KodiAlbumBrowseViewModel(kodi: kodi)
     }
     
     public func albumBrowseViewModel(_ genre: String) -> AlbumBrowseViewModel {
-        return KodiAlbumBrowseViewModel()
+        return KodiAlbumBrowseViewModel(kodi: kodi)
     }
     
     public func albumBrowseViewModel(_ albums: [Album]) -> AlbumBrowseViewModel {
-        return KodiAlbumBrowseViewModel()
+        return KodiAlbumBrowseViewModel(kodi: kodi)
     }
     
     public func artistBrowseViewModel(type: ArtistType) -> ArtistBrowseViewModel {
@@ -73,15 +79,15 @@ public class KodiBrowse: BrowseProtocol {
     }
     
     public func songBrowseViewModel(_ songs: [Song]) -> SongBrowseViewModel {
-        return KodiSongBrowseViewModel()
+        return KodiSongBrowseViewModel(kodi: kodi, songs: songs)
     }
     
     public func songBrowseViewModel(_ album: Album) -> SongBrowseViewModel {
-        return KodiSongBrowseViewModel()
+        return KodiSongBrowseViewModel(kodi: kodi, filters: [.album(album)])
     }
     
     public func songBrowseViewModel(_ playlist: Playlist) -> SongBrowseViewModel {
-        return KodiSongBrowseViewModel()
+        return KodiSongBrowseViewModel(kodi: kodi, filters: [.playlist(playlist)])
     }
     
     public func genreBrowseViewModel() -> GenreBrowseViewModel {
@@ -105,7 +111,7 @@ public class KodiBrowse: BrowseProtocol {
     }
     
     public func preprocessCoverURI(_ coverURI: CoverURI) -> Observable<CoverURI> {
-        return Observable.empty()
+        return Observable.just(coverURI)
     }
     
     public func diagnostics(album: Album) -> Observable<String> {

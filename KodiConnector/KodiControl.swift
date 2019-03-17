@@ -12,12 +12,18 @@ import RxSwift
 import RxCocoa
 
 public class KodiControl: ControlProtocol {
+    private var kodi: KodiProtocol
+
+    public init(kodi: KodiProtocol) {
+        self.kodi = kodi
+    }
+    
     public func play() -> Observable<PlayerStatus> {
         return Observable.empty()
     }
     
     public func play(index: Int) -> Observable<PlayerStatus> {
-        return Observable.empty()
+        return requestWithStatus(controlObservable: kodi.goto(index))
     }
     
     public func pause() -> Observable<PlayerStatus> {
@@ -28,16 +34,28 @@ public class KodiControl: ControlProtocol {
         return Observable.empty()
     }
     
+    private func requestWithStatus(controlObservable: Observable<Bool>) -> Observable<PlayerStatus> {
+        let kodi = self.kodi
+        return controlObservable
+            .filter({ (success) -> Bool in
+                success == true
+            })
+            .flatMap({ (_) -> Observable<PlayerStatus> in
+                KodiStatus(kodi: kodi)
+                    .getStatus()
+            })
+    }
+    
     public func togglePlayPause() -> Observable<PlayerStatus> {
-        return Observable.empty()
+        return requestWithStatus(controlObservable: kodi.togglePlayPause())
     }
     
     public func skip() -> Observable<PlayerStatus> {
-        return Observable.empty()
+        return requestWithStatus(controlObservable: kodi.skip())
     }
     
     public func back() -> Observable<PlayerStatus> {
-        return Observable.empty()
+        return requestWithStatus(controlObservable: kodi.back())
     }
     
     public func setRandom(randomMode: RandomMode) -> Observable<PlayerStatus> {
@@ -88,7 +106,10 @@ public class KodiControl: ControlProtocol {
     }
     
     public func addAlbum(_ album: Album, addMode: AddMode, shuffle: Bool, startWithSong: UInt32) -> Observable<(Album, Song, AddMode, Bool, PlayerStatus)> {
-        return Observable.empty()
+        return requestWithStatus(controlObservable: kodi.playAlbum(album, shuffle: shuffle))
+            .map({ (playerStatus) -> (Album, Song, AddMode, Bool, PlayerStatus) in
+                (album, Song(), addMode, shuffle, playerStatus)
+            })
     }
     
     public func addAlbumToPlaylist(_ album: Album, playlist: Playlist) -> Observable<(Album, Playlist)> {

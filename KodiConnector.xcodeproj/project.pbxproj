@@ -14,6 +14,9 @@
 		C528030421B5C08D00270382 /* KodiPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C52802FE21B4449F00270382 /* KodiPlayer.swift */; };
 		C528030521B5C08E00270382 /* KodiPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C52802FE21B4449F00270382 /* KodiPlayer.swift */; };
 		C528030621B5C08E00270382 /* KodiPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C52802FE21B4449F00270382 /* KodiPlayer.swift */; };
+		C5675F7C2236576E0038BB3E /* Pods_KodiConnector_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5675F7B2236576E0038BB3E /* Pods_KodiConnector_iOS.framework */; };
+		C5675F8E22383EF70038BB3E /* KodiProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5675F8D22383EF70038BB3E /* KodiProtocol.swift */; };
+		C5675F9422383F050038BB3E /* KodiWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5675F9322383F050038BB3E /* KodiWrapper.swift */; };
 		C5A2969C21B4381300D74771 /* KodiConnector.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5A2969221B4381300D74771 /* KodiConnector.framework */; };
 		C5A296A121B4381300D74771 /* KodiConnectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5A296A021B4381300D74771 /* KodiConnectorTests.swift */; };
 		C5A296A321B4381300D74771 /* KodiConnector_iOS.h in Headers */ = {isa = PBXBuildFile; fileRef = C5A2969521B4381300D74771 /* KodiConnector_iOS.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -53,7 +56,6 @@
 		C5A3F72C2234FA83004EA8EB /* KodiPlayerBrowser.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5A3F72B2234FA83004EA8EB /* KodiPlayerBrowser.swift */; };
 		C5A3F72D2234FA83004EA8EB /* KodiPlayerBrowser.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5A3F72B2234FA83004EA8EB /* KodiPlayerBrowser.swift */; };
 		C5A3F72E2234FA83004EA8EB /* KodiPlayerBrowser.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5A3F72B2234FA83004EA8EB /* KodiPlayerBrowser.swift */; };
-		C66D57752FCC64E7049BCFBF /* Pods_KodiConnector_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AC8E692ACF38DA6E15C2D0A0 /* Pods_KodiConnector_iOS.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -106,6 +108,9 @@
 		B600623B06EFA009F0453092 /* Pods-KodiConnector_iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KodiConnector_iOS.release.xcconfig"; path = "Target Support Files/Pods-KodiConnector_iOS/Pods-KodiConnector_iOS.release.xcconfig"; sourceTree = "<group>"; };
 		C216D755A4C1C3BCAAC3EFDB /* Pods-KodiConnector_tvOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KodiConnector_tvOS.release.xcconfig"; path = "Target Support Files/Pods-KodiConnector_tvOS/Pods-KodiConnector_tvOS.release.xcconfig"; sourceTree = "<group>"; };
 		C52802FE21B4449F00270382 /* KodiPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KodiPlayer.swift; sourceTree = "<group>"; };
+		C5675F7B2236576E0038BB3E /* Pods_KodiConnector_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Pods_KodiConnector_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		C5675F8D22383EF70038BB3E /* KodiProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KodiProtocol.swift; sourceTree = "<group>"; };
+		C5675F9322383F050038BB3E /* KodiWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KodiWrapper.swift; sourceTree = "<group>"; };
 		C5A2969221B4381300D74771 /* KodiConnector.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = KodiConnector.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C5A2969521B4381300D74771 /* KodiConnector_iOS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KodiConnector_iOS.h; sourceTree = "<group>"; };
 		C5A2969621B4381300D74771 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -140,8 +145,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C5675F7C2236576E0038BB3E /* Pods_KodiConnector_iOS.framework in Frameworks */,
 				C5A296E521B43F9100D74771 /* ConnectorProtocol.framework in Frameworks */,
-				C66D57752FCC64E7049BCFBF /* Pods_KodiConnector_iOS.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -265,6 +270,7 @@
 		C5A296C621B4391700D74771 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				C5675F7B2236576E0038BB3E /* Pods_KodiConnector_iOS.framework */,
 				C5A296E421B43F9100D74771 /* ConnectorProtocol.framework */,
 				339905BD5FF639088792A8AB /* Pods_KodiConnectorTests.framework */,
 				D23E86A227FE287CF78E4F03 /* Pods_KodiConnector_MacOS.framework */,
@@ -289,6 +295,8 @@
 				C5A3F7232234F494004EA8EB /* KodiGenreBrowseViewModel.swift */,
 				C5A3F7272234F4A5004EA8EB /* KodiFolderBrowseViewModel.swift */,
 				C5A3F72B2234FA83004EA8EB /* KodiPlayerBrowser.swift */,
+				C5675F8D22383EF70038BB3E /* KodiProtocol.swift */,
+				C5675F9322383F050038BB3E /* KodiWrapper.swift */,
 			);
 			path = KodiConnector;
 			sourceTree = "<group>";
@@ -645,6 +653,7 @@
 			files = (
 				C5A3F7102234F3DF004EA8EB /* KodiAlbumBrwoseViewModel.swift in Sources */,
 				C5A3F71C2234F46F004EA8EB /* KodiPlaylistBrowseViewModel.swift in Sources */,
+				C5675F9422383F050038BB3E /* KodiWrapper.swift in Sources */,
 				C5A3F7142234F43B004EA8EB /* KodiAlbumSectionBrowseViewModel.swift in Sources */,
 				C5A3F70C2234F2D2004EA8EB /* KodiBrowse.swift in Sources */,
 				C5A3F7182234F459004EA8EB /* KodiArtistBrowseViewModel.swift in Sources */,
@@ -655,6 +664,7 @@
 				C528030621B5C08E00270382 /* KodiPlayer.swift in Sources */,
 				C5A3F72C2234FA83004EA8EB /* KodiPlayerBrowser.swift in Sources */,
 				C5A3F7202234F482004EA8EB /* KodiSongBrowseViewModel.swift in Sources */,
+				C5675F8E22383EF70038BB3E /* KodiProtocol.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
