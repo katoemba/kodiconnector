@@ -90,6 +90,10 @@ public class KodiBrowse: BrowseProtocol {
         return KodiSongBrowseViewModel(kodi: kodi, filters: [.playlist(playlist)])
     }
     
+    public func songBrowseViewModel(random: Int) -> SongBrowseViewModel {
+        return KodiSongBrowseViewModel(kodi: kodi, filters: [.random(random)])
+    }
+    
     public func genreBrowseViewModel() -> GenreBrowseViewModel {
         return KodiGenreBrowseViewModel()
     }
