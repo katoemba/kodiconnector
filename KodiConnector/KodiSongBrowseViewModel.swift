@@ -12,6 +12,7 @@ import RxCocoa
 import ConnectorProtocol
 
 public class KodiSongBrowseViewModel: SongBrowseViewModel {
+    
     private var loadProgress = BehaviorRelay<LoadProgress>(value: .notStarted)
     public var loadProgressObservable: Observable<LoadProgress> {
         return loadProgress.asObservable()
@@ -21,16 +22,47 @@ public class KodiSongBrowseViewModel: SongBrowseViewModel {
     public var songsObservable: Observable<[Song]> {
         return songsSubject.asObservable()
     }
-    
+    public var songsWithSubfilterObservable: Observable<[Song]> {
+        return songsObservable
+            .map({ [weak self] (songs) -> [Song] in
+                guard let weakSelf = self else { return songs }
+                
+                if let subFilter = weakSelf.subFilter, case let .artist(artist) = subFilter {
+                    var filteredSongs = [Song]()
+                    for song in songs {
+                        if artist.type == .artist || artist.type == .albumArtist {
+                            if song.albumartist.lowercased().contains(artist.name.lowercased()) || song.artist.lowercased().contains(artist.name.lowercased()) {
+                                filteredSongs.append(song)
+                            }
+                        }
+                        else if artist.type == .composer {
+                            if song.composer.lowercased().contains(artist.name.lowercased()) {
+                                filteredSongs.append(song)
+                            }
+                        }
+                        else if artist.type == .performer {
+                            if song.performer.lowercased().contains(artist.name.lowercased()) {
+                                filteredSongs.append(song)
+                            }
+                        }
+                    }
+                    return filteredSongs
+                }
+                return songs
+            })
+    }
+
     private var bag = DisposeBag()
     private var kodi: KodiProtocol
-    public private(set) var filters: [BrowseFilter]
+    public private(set) var filter: BrowseFilter?
+    public private(set) var subFilter: BrowseFilter?
     private var songs: [Song]
 
-    public required init(kodi: KodiProtocol, songs: [Song] = [], filters: [BrowseFilter] = []) {
+    public required init(kodi: KodiProtocol, songs: [Song] = [], filter: BrowseFilter? = nil, subFilter: BrowseFilter? = nil) {
         self.kodi = kodi
         self.songs = songs
-        self.filters = filters
+        self.filter = filter
+        self.subFilter = subFilter
     }
 
     public func load() {
@@ -39,8 +71,8 @@ public class KodiSongBrowseViewModel: SongBrowseViewModel {
             bag = DisposeBag()
             songsSubject.onNext(songs)
         }
-        else if filters.count > 0 {
-            reload(filter: filters[0])
+        else if filter != nil {
+            reload(filter: filter!)
         }
         else {
             fatalError("MPDSongBrowseViewModel: load without filters not allowed")

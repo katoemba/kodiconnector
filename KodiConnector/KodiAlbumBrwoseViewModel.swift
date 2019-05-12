@@ -65,7 +65,7 @@ public class KodiAlbumBrowseViewModel: AlbumBrowseViewModel {
         }
     }
     
-    private func reload(genre: String? = nil, artist: Artist? = nil, recent: Int? = nil, random: Int? = nil, sort: SortType) {
+    private func reload(genre: Genre? = nil, artist: Artist? = nil, recent: Int? = nil, random: Int? = nil, sort: SortType) {
         loadProgress.accept(.loading)
 
         if let recent = recent {

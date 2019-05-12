@@ -50,7 +50,7 @@ public class KodiBrowse: BrowseProtocol {
         return KodiAlbumBrowseViewModel(kodi: kodi)
     }
     
-    public func albumBrowseViewModel(_ genre: String) -> AlbumBrowseViewModel {
+    public func albumBrowseViewModel(_ genre: Genre) -> AlbumBrowseViewModel {
         return KodiAlbumBrowseViewModel(kodi: kodi)
     }
     
@@ -62,7 +62,7 @@ public class KodiBrowse: BrowseProtocol {
         return KodiArtistBrowseViewModel()
     }
     
-    public func artistBrowseViewModel(_ genre: String, type: ArtistType) -> ArtistBrowseViewModel {
+    public func artistBrowseViewModel(_ genre: Genre, type: ArtistType) -> ArtistBrowseViewModel {
         return KodiArtistBrowseViewModel()
     }
     
@@ -82,16 +82,21 @@ public class KodiBrowse: BrowseProtocol {
         return KodiSongBrowseViewModel(kodi: kodi, songs: songs)
     }
     
-    public func songBrowseViewModel(_ album: Album) -> SongBrowseViewModel {
-        return KodiSongBrowseViewModel(kodi: kodi, filters: [.album(album)])
+    public func songBrowseViewModel(_ album: Album, artist: Artist?) -> SongBrowseViewModel {
+        if let artist = artist {
+            return KodiSongBrowseViewModel(kodi: kodi, filter: .album(album), subFilter: .artist(artist))
+        }
+        else {
+            return KodiSongBrowseViewModel(kodi: kodi, filter: .album(album))
+        }
     }
     
     public func songBrowseViewModel(_ playlist: Playlist) -> SongBrowseViewModel {
-        return KodiSongBrowseViewModel(kodi: kodi, filters: [.playlist(playlist)])
+        return KodiSongBrowseViewModel(kodi: kodi, filter: .playlist(playlist))
     }
     
     public func songBrowseViewModel(random: Int) -> SongBrowseViewModel {
-        return KodiSongBrowseViewModel(kodi: kodi, filters: [.random(random)])
+        return KodiSongBrowseViewModel(kodi: kodi, filter: .random(random))
     }
     
     public func genreBrowseViewModel() -> GenreBrowseViewModel {
