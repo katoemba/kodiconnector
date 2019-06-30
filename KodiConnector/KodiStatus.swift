@@ -50,7 +50,7 @@ public class KodiStatus: StatusProtocol {
         
         let playerStatusSubject = self.playerStatus
         Observable<Int>
-            .timer(RxTimeInterval(1.0), period: RxTimeInterval(1.0), scheduler: elapsedTimeScheduler)
+            .timer(RxTimeInterval.seconds(1), period: RxTimeInterval.seconds(1), scheduler: elapsedTimeScheduler)
             .map({ [weak self] (_) -> PlayerStatus? in
                 guard let weakSelf = self, weakSelf.playerStatus.value.playing.playPauseMode == .Playing else { return nil }
 
@@ -71,7 +71,7 @@ public class KodiStatus: StatusProtocol {
             .disposed(by: bag)
         
         Observable<Int>
-            .timer(RxTimeInterval(0.0), period: RxTimeInterval(5.0), scheduler: statusScheduler)
+            .timer(RxTimeInterval.seconds(0), period: RxTimeInterval.seconds(5), scheduler: statusScheduler)
             .flatMap({ [weak self] (_) -> Observable<PlayerStatus> in
                 guard let weakSelf = self else { return Observable.just(PlayerStatus()) }
                 return weakSelf.getStatus()
