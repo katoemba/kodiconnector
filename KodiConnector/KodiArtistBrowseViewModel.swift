@@ -17,8 +17,8 @@ public class KodiArtistBrowseViewModel: ArtistBrowseViewModel {
         return loadProgress.asObservable()
     }
     
-    private var artistSectionsSubject = PublishSubject<ObjectSections<Artist>>()
-    public var artistSectionsObservable: Observable<ObjectSections<Artist>> {
+    private var artistSectionsSubject = PublishSubject<ArtistSections>()
+    public var artistSectionsObservable: Observable<ArtistSections> {
         return artistSectionsSubject.asObservable()
     }
     

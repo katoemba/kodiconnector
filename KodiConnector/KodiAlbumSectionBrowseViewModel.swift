@@ -17,8 +17,8 @@ public class KodiAlbumSectionBrowseViewModel: AlbumSectionBrowseViewModel {
         return loadProgress.asObservable()
     }
     
-    private var albumSectionsSubject = PublishSubject<ObjectSections<Album>>()
-    public var albumSectionsObservable: Observable<ObjectSections<Album>> {
+    private var albumSectionsSubject = PublishSubject<AlbumSections>()
+    public var albumSectionsObservable: Observable<AlbumSections> {
         return albumSectionsSubject.asObservable()
     }
     
