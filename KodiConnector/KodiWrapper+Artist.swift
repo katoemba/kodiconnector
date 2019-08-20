@@ -23,7 +23,7 @@ extension KodiWrapper {
                                      "properties": KodiWrapper.artistProperties,
                                      "limits": ["start": start, "end": end],
                                      "sort": ["order": "ascending", "method": "artist"]],
-                          "id": "getAlbums"] as [String : Any]
+                          "id": "getArtists"] as [String : Any]
         
         return dataPostRequest(kodi.jsonRpcUrl, parameters: parameters)
             .map({ (response, data) -> (KodiArtists) in
@@ -34,7 +34,35 @@ extension KodiWrapper {
                 Observable.empty()
             })
     }
-    
+
+    public func getArtistId(_ name: String) -> Observable<Int> {
+        struct Root: Decodable {
+            var result: KodiArtists
+        }
+        enum MyError: Error {
+            case artistNotFound
+        }
+
+        let parameters = ["jsonrpc": "2.0",
+                          "method": "AudioLibrary.GetArtists",
+                          "params": ["properties": KodiWrapper.artistProperties,
+                                     "filter": ["field": "artist", "operator": "is", "value": name]],
+                          "id": "getArtist"] as [String : Any]
+        
+        return dataPostRequest(kodi.jsonRpcUrl, parameters: parameters)
+            .map({ (response, data) -> (Int) in
+                let root = try JSONDecoder().decode(Root.self, from: data)
+                
+                guard root.result.artists.count > 0, let artistid = root.result.artists[0].artistid else {
+                    throw MyError.artistNotFound
+                }
+                return artistid
+            })
+            .catchError({ (error) -> Observable<Int> in
+                Observable.empty()
+            })
+    }
+
     public func playArtist(_ artistid: Int, shuffle: Bool) -> Observable<Bool> {
         let parameters = ["jsonrpc": "2.0",
                           "method": "Player.Open",

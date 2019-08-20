@@ -149,6 +149,7 @@ public protocol KodiProtocol {
     func playAlbum(_ albumid: Int, shuffle: Bool) -> Observable<Bool>
     
     func getArtists(start: Int, end: Int, albumartistsonly: Bool) -> Observable<KodiArtists>
+    func getArtistId(_ name: String) -> Observable<Int>
     func playArtist(_ artistid: Int, shuffle: Bool) -> Observable<Bool>
 
     func getGenres() -> Observable<KodiGenres>

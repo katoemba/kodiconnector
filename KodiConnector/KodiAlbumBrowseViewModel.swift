@@ -92,12 +92,20 @@ public class KodiAlbumBrowseViewModel: AlbumBrowseViewModel {
             return
         }
         else if let artist = artist {
-            guard let artistId = Int(artist.id) else {
-                return
+            var artistIdObservable: Observable<Int>
+            if let artistId = Int(artist.id) {
+                artistIdObservable = Observable.just(artistId)
+            }
+            else {
+                artistIdObservable = kodi.getArtistId(artist.name)
             }
 
             loadProgress.accept(.loading)
-            kodi.getAlbums(artistid: artistId)
+            let kodi = self.kodi
+            artistIdObservable
+                .flatMapFirst { (artistId) -> Observable<KodiAlbums> in
+                    kodi.getAlbums(artistid: artistId)
+                }
                 .do() { [weak self] in
                     self?.loadProgress.accept(.dataAvailable)
                 }
