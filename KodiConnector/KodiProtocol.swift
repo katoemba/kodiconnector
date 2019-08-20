@@ -107,6 +107,20 @@ public struct KodiArtists: Decodable {
     var limits: Limits
 }
 
+public struct KodiGenre: Decodable {
+    var id: Int?
+    var genreid: Int?
+    var label: String
+    
+    var uniqueId: Int {
+        return genreid ?? id ?? 0
+    }
+}
+public struct KodiGenres: Decodable {
+    var genres: [KodiGenre]
+    var limits: Limits
+}
+
 public protocol KodiProtocol {
     func getKodiVersion() -> Observable<String>
     func getApiVersion() -> Observable<String>
@@ -130,8 +144,13 @@ public protocol KodiProtocol {
 
     func getRecentAlbums(count: Int) -> Observable<KodiAlbums>
     func getAlbums(start: Int, end: Int) -> Observable<KodiAlbums>
-    func getAlbums(_ artistid: Int) -> Observable<KodiAlbums>
+    func getAlbums(artistid: Int) -> Observable<KodiAlbums>
+    func getAlbums(genreid: Int) -> Observable<KodiAlbums>
     func playAlbum(_ albumid: Int, shuffle: Bool) -> Observable<Bool>
     
     func getArtists(start: Int, end: Int, albumartistsonly: Bool) -> Observable<KodiArtists>
+    func playArtist(_ artistid: Int, shuffle: Bool) -> Observable<Bool>
+
+    func getGenres() -> Observable<KodiGenres>
+    func playGenre(_ genreid: Int, shuffle: Bool) -> Observable<Bool>
 }

@@ -121,7 +121,14 @@ public class KodiControl: ControlProtocol {
     }
     
     public func add(_ artist: Artist, addDetails: AddDetails) -> Observable<(Artist, AddResponse)> {
-        return Observable.empty()
+        guard let artistId = Int(artist.id) else {
+            return Observable.empty()
+        }
+        
+        return requestWithStatus(controlObservable: kodi.playArtist(artistId, shuffle: addDetails.shuffle))
+            .map({ (playerStatus) -> (Artist, AddResponse) in
+                (artist, AddResponse(addDetails, playerStatus))
+            })
     }
     
     public func add(_ playlist: Playlist, addDetails: AddDetails) -> Observable<(Playlist, AddResponse)> {
@@ -129,7 +136,14 @@ public class KodiControl: ControlProtocol {
     }
     
     public func add(_ genre: Genre, addDetails: AddDetails) -> Observable<(Genre, AddResponse)> {
-        return Observable.empty()
+        guard let genreId = Int(genre.id) else {
+            return Observable.empty()
+        }
+        
+        return requestWithStatus(controlObservable: kodi.playGenre(genreId, shuffle: addDetails.shuffle))
+            .map({ (playerStatus) -> (Genre, AddResponse) in
+                (genre, AddResponse(addDetails, playerStatus))
+            })
     }
     
     public func add(_ folder: Folder, addDetails: AddDetails) -> Observable<(Folder, AddResponse)> {

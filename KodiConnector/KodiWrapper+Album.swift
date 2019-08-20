@@ -56,7 +56,7 @@ extension KodiWrapper {
             })
     }
     
-    public func getAlbums(_ artistid: Int) -> Observable<KodiAlbums> {
+    public func getAlbums(artistid: Int) -> Observable<KodiAlbums> {
         struct Root: Decodable {
             var result: KodiAlbums
         }
@@ -78,6 +78,28 @@ extension KodiWrapper {
             })
     }
 
+    public func getAlbums(genreid: Int) -> Observable<KodiAlbums> {
+        struct Root: Decodable {
+            var result: KodiAlbums
+        }
+        
+        let parameters = ["jsonrpc": "2.0",
+                          "method": "AudioLibrary.GetAlbums",
+                          "params": ["properties": KodiWrapper.albumProperties,
+                                     "filter": ["genreid": genreid],
+                                     "sort": ["order": "ascending", "method": "artist"]],
+                          "id": "getArtistAlbums"] as [String : Any]
+        
+        return dataPostRequest(kodi.jsonRpcUrl, parameters: parameters)
+            .map({ (response, data) -> (KodiAlbums) in
+                let root = try JSONDecoder().decode(Root.self, from: data)
+                return root.result
+            })
+            .catchError({ (error) -> Observable<KodiAlbums> in
+                Observable.empty()
+            })
+    }
+    
     public func playAlbum(_ albumid: Int, shuffle: Bool) -> Observable<Bool> {
         let parameters = ["jsonrpc": "2.0",
                           "method": "Player.Open",

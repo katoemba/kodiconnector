@@ -115,7 +115,7 @@ public class KodiBrowse: BrowseProtocol {
     }
     
     public func genreBrowseViewModel() -> GenreBrowseViewModel {
-        return KodiGenreBrowseViewModel()
+        return KodiGenreBrowseViewModel(kodi: kodi)
     }
     
     public func folderContentsBrowseViewModel() -> FolderBrowseViewModel {
@@ -192,5 +192,11 @@ extension KodiAlbum {
 extension KodiArtist {
     var artist: Artist {
         return Artist(id: "\(uniqueId)", type: .artist, source: .Local, name: label, sortName: label)
+    }
+}
+
+extension KodiGenre {
+    var genre: Genre {
+        return Genre(id: "\(uniqueId)", source: .Local, name: label)
     }
 }

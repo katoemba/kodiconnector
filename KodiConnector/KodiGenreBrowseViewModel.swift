@@ -24,7 +24,27 @@ public class KodiGenreBrowseViewModel: GenreBrowseViewModel {
 
     public private(set) var parentGenre = nil as Genre?
     
+    private let kodi: KodiProtocol
+    private let bag = DisposeBag()
+    
+    public init(kodi: KodiProtocol) {
+        self.kodi = kodi
+    }
+    
     public func load() {
+        loadProgress.accept(.loading)
+
+        kodi.getGenres()
+            .map { (kodiGenres) -> [Genre] in
+                kodiGenres.genres.map({ (kodiGenre) -> Genre in
+                    return kodiGenre.genre
+                })
+            }
+            .do(onNext: { [weak self] (_) in
+                self?.loadProgress.accept(.allDataLoaded)
+            })
+            .bind(to: genresSubject)
+            .disposed(by: bag)
     }
     
     public func extend() {

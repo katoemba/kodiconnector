@@ -97,7 +97,26 @@ public class KodiAlbumBrowseViewModel: AlbumBrowseViewModel {
             }
 
             loadProgress.accept(.loading)
-            kodi.getAlbums(artistId)
+            kodi.getAlbums(artistid: artistId)
+                .do() { [weak self] in
+                    self?.loadProgress.accept(.dataAvailable)
+                }
+                .map({ (kodiAlbums) -> [Album] in
+                    kodiAlbums.albums.map({ (kodiAlbum) -> Album in
+                        kodiAlbum.album
+                    })
+                })
+                .bind(to: albumsSubject)
+                .disposed(by: bag)
+            return
+        }
+        else if let genre = genre {
+            guard let genreId = Int(genre.id) else {
+                return
+            }
+
+            loadProgress.accept(.loading)
+            kodi.getAlbums(genreid: genreId)
                 .do() { [weak self] in
                     self?.loadProgress.accept(.dataAvailable)
                 }
