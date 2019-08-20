@@ -44,8 +44,6 @@ public class KodiStatus: StatusProtocol {
     }
     
     public func startMonitoring() {
-        let kodi = self.kodi
-        
         connectionStatus.accept(.online)
         
         let playerStatusSubject = self.playerStatus
@@ -89,6 +87,16 @@ public class KodiStatus: StatusProtocol {
     
     public func playqueueSongs(start: Int, end: Int) -> Observable<[Song]> {
         return kodi.getPlayQueue(start: start, end: end)
+            .map({ (kodiSongs) -> [Song] in
+                var position = start
+                return kodiSongs.map({ (kodiSong) -> Song in
+                    var song = kodiSong.song
+                    song.position = position
+                    position += 1
+                    
+                    return song
+                })
+            })
     }
     
     public func forceStatusRefresh() {
@@ -108,25 +116,33 @@ public class KodiStatus: StatusProtocol {
                 return kodi.getPlayerProperties()
             }
             .map({ (playerProperties) -> PlayerStatus in
-                var playerStatus = PlayerStatus()
-                playerStatus.lastUpdateTime = Date()
-                playerStatus.playing.randomMode = playerProperties.shuffled ? .On : .Off
-                playerStatus.playing.repeatMode = (playerProperties.repeat == "all") ? .All : ( (playerProperties.repeat == "one") ? .Single : .Off)
-                playerStatus.time.elapsedTime = playerProperties.elapsedTime
-                playerStatus.time.trackTime = playerProperties.totalTime
-                playerStatus.playing.playPauseMode = playerProperties.speed == 1 ? .Playing : .Paused
-                
-                playerStatus.playqueue.songIndex = playerProperties.position
-                
-                return playerStatus
+                playerProperties.playerStatus
             })
             .flatMap({ (playerStatus) -> Observable<PlayerStatus> in
                 kodi.getCurrentSong()
                     .map({ (song) -> PlayerStatus in
                         var updatedPlayerStatus = playerStatus
-                        updatedPlayerStatus.currentSong = song
+                        updatedPlayerStatus.currentSong = song.song
                         return updatedPlayerStatus
                     })
             })
+    }
+}
+
+extension KodiPlayerProperties {
+    var playerStatus: PlayerStatus {
+        get {
+            var playerStatus = PlayerStatus()
+            
+            playerStatus.lastUpdateTime = Date()
+            playerStatus.playing.randomMode = shuffled ? .On : .Off
+            playerStatus.playing.repeatMode = (`repeat` == "all") ? .All : ( (`repeat` == "one") ? .Single : .Off)
+            playerStatus.time.elapsedTime = time.timeInSeconds
+            playerStatus.time.trackTime = totaltime.timeInSeconds
+            playerStatus.playing.playPauseMode = speed == 1 ? .Playing : .Paused
+            playerStatus.playqueue.songIndex = position
+            
+            return playerStatus
+        }
     }
 }

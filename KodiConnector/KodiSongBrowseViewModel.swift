@@ -94,11 +94,27 @@ public class KodiSongBrowseViewModel: SongBrowseViewModel {
         var songsObservable : Observable<[Song]>
         switch filter {
         case let .playlist(playlist):
-            songsObservable = kodi.getSongsInPlaylist(playlist)
-                .observeOn(MainScheduler.instance)
-                .share(replay: 1)
+            songsObservable = Observable.empty()
+//            songsObservable = kodi.getSongsInPlaylist(playlist)
+//                .map({ (kodiSongs) -> [Song] in
+//                    kodiSongs.map({ (kodiSong) -> Song in
+//                        kodiSong.song
+//                    })
+//                })
+//                .observeOn(MainScheduler.instance)
+//                .share(replay: 1)
         case let .album(album):
-            songsObservable = kodi.getSongsOnAlbum(album)
+            guard let albumId = Int(album.id) else {
+                songsObservable = Observable.empty()
+                break
+            }
+            
+            songsObservable = kodi.getSongsOnAlbum(albumId)
+                .map({ (kodiSongs) -> [Song] in
+                    kodiSongs.map({ (kodiSong) -> Song in
+                        kodiSong.song
+                    })
+                })
                 .map({ (songs) -> [Song] in
                     // If songs have track numbers, sort them by track number. Otherwise pass untouched.
                     if songs.count > 0, songs[0].track > 0 {

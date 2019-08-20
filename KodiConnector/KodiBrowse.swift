@@ -27,10 +27,25 @@ public class KodiBrowse: BrowseProtocol {
     }
     
     public func songsOnAlbum(_ album: Album) -> Observable<[Song]> {
-        return Observable.empty()
+        guard let albumId = Int(album.id) else {
+            return Observable.empty()
+        }
+        
+        return kodi.getSongsOnAlbum(albumId)
+            .map({ (kodiSongs) -> [Song] in
+                kodiSongs.map({ (kodiSong) -> Song in
+                    kodiSong.song
+                })
+            })
     }
     
     public func songsInPlaylist(_ playlist: Playlist) -> Observable<[Song]> {
+//        return kodi.getSongsInPlaylist(playlist)
+//            .map({ (kodiSongs) -> [Song] in
+//                kodiSongs.map({ (kodiSong) -> Song in
+//                    kodiSong.song
+//                })
+//            })
         return Observable.empty()
     }
     
@@ -47,27 +62,27 @@ public class KodiBrowse: BrowseProtocol {
     }
     
     public func albumBrowseViewModel(_ artist: Artist) -> AlbumBrowseViewModel {
-        return KodiAlbumBrowseViewModel(kodi: kodi)
+        return KodiAlbumBrowseViewModel(kodi: kodi, filters: [.artist(artist)])
     }
     
     public func albumBrowseViewModel(_ genre: Genre) -> AlbumBrowseViewModel {
-        return KodiAlbumBrowseViewModel(kodi: kodi)
+        return KodiAlbumBrowseViewModel(kodi: kodi, filters: [.genre(genre)])
     }
     
     public func albumBrowseViewModel(_ albums: [Album]) -> AlbumBrowseViewModel {
-        return KodiAlbumBrowseViewModel(kodi: kodi)
+        return KodiAlbumBrowseViewModel(kodi: kodi, albums: albums)
     }
     
     public func artistBrowseViewModel(type: ArtistType) -> ArtistBrowseViewModel {
-        return KodiArtistBrowseViewModel()
+        return KodiArtistBrowseViewModel(kodi: kodi)
     }
     
     public func artistBrowseViewModel(_ genre: Genre, type: ArtistType) -> ArtistBrowseViewModel {
-        return KodiArtistBrowseViewModel()
+        return KodiArtistBrowseViewModel(kodi: kodi)
     }
     
     public func artistBrowseViewModel(_ artists: [Artist]) -> ArtistBrowseViewModel {
-        return KodiArtistBrowseViewModel()
+        return KodiArtistBrowseViewModel(kodi: kodi)
     }
     
     public func playlistBrowseViewModel() -> PlaylistBrowseViewModel {
@@ -127,4 +142,55 @@ public class KodiBrowse: BrowseProtocol {
         return Observable.empty()
     }
     
+}
+
+extension KodiSong {
+    var song: Song {
+        get {
+            var song = Song(id: "\(uniqueId)",
+                source: .Local,
+                location: file,
+                title: label,
+                album: album,
+                artist: displayartist,
+                albumartist: albumartist.count > 0 ? albumartist[0] : displayartist,
+                composer: "",
+                year: year,
+                genre: genre,
+                length: duration,
+                quality: QualityStatus(samplerate: "", encoding: "", channels: "", filetype: ""),
+                position: 0,
+                track: track)
+            song.coverURI = CoverURI.fullPathURI(thumbnail)
+            //song.coverURI = CoverURI.fullPathURI("http://\(kodi.ip):\(kodi.port)/image/\(dict["thumbnail"].stringValue.addingPercentEncoding(withAllowedCharacters: .letters)!)")
+            
+            return song
+        }
+    }
+}
+
+extension KodiAlbum {
+    var album: Album {
+        get {
+            var album = Album(id: "\(uniqueId)",
+                source: .Local,
+                location: "",
+                title: label,
+                artist: displayartist,
+                year: year,
+                genre: genre,
+                length: 0,
+                sortTitle: label,
+                sortArtist: displayartist)
+            album.coverURI = CoverURI.fullPathURI(thumbnail)
+
+            return album
+        }
+    }
+}
+
+extension KodiArtist {
+    var artist: Artist {
+        return Artist(id: "\(uniqueId)", type: .artist, source: .Local, name: label, sortName: label)
+    }
 }

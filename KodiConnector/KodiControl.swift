@@ -106,7 +106,11 @@ public class KodiControl: ControlProtocol {
     }
     
     public func add(_ album: Album, addDetails: AddDetails) -> Observable<(Album, AddResponse)> {
-        return requestWithStatus(controlObservable: kodi.playAlbum(album, shuffle: addDetails.shuffle))
+        guard let albumId = Int(album.id) else {
+            return Observable.empty()
+        }
+        
+        return requestWithStatus(controlObservable: kodi.playAlbum(albumId, shuffle: addDetails.shuffle))
             .map({ (playerStatus) -> (Album, AddResponse) in
                 (album, AddResponse(addDetails, playerStatus))
             })
@@ -152,6 +156,18 @@ public class KodiControl: ControlProtocol {
     }
     
     public func clearPlayqueue() {
+        let kodi = self.kodi
+        
+        _ = kodi.getPlayerProperties()
+            .debug()
+            .map({ (playerProperties) -> Int in
+                playerProperties.playlistid
+            })
+            .flatMap({ (playlistId) -> Observable<Bool> in
+                kodi.clearPlayqueue(playlistId)
+            })
+            .subscribe(onNext: { (_) in
+            })
     }
     
     public func playStation(_ station: Station) {
