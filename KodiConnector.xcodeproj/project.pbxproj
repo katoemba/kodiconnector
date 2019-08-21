@@ -44,6 +44,9 @@
 		C576C2A6230BF2750052DC0E /* KodiWrapper+Genre.swift in Sources */ = {isa = PBXBuildFile; fileRef = C576C2A5230BF2750052DC0E /* KodiWrapper+Genre.swift */; };
 		C576C2A7230BF2750052DC0E /* KodiWrapper+Genre.swift in Sources */ = {isa = PBXBuildFile; fileRef = C576C2A5230BF2750052DC0E /* KodiWrapper+Genre.swift */; };
 		C576C2A8230BF2750052DC0E /* KodiWrapper+Genre.swift in Sources */ = {isa = PBXBuildFile; fileRef = C576C2A5230BF2750052DC0E /* KodiWrapper+Genre.swift */; };
+		C576C2AA230C727B0052DC0E /* KodiWrapper+Folder.swift in Sources */ = {isa = PBXBuildFile; fileRef = C576C2A9230C727B0052DC0E /* KodiWrapper+Folder.swift */; };
+		C576C2AB230C727B0052DC0E /* KodiWrapper+Folder.swift in Sources */ = {isa = PBXBuildFile; fileRef = C576C2A9230C727B0052DC0E /* KodiWrapper+Folder.swift */; };
+		C576C2AC230C727B0052DC0E /* KodiWrapper+Folder.swift in Sources */ = {isa = PBXBuildFile; fileRef = C576C2A9230C727B0052DC0E /* KodiWrapper+Folder.swift */; };
 		C5A2969C21B4381300D74771 /* KodiConnector.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5A2969221B4381300D74771 /* KodiConnector.framework */; };
 		C5A296A121B4381300D74771 /* KodiConnectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5A296A021B4381300D74771 /* KodiConnectorTests.swift */; };
 		C5A296A321B4381300D74771 /* KodiConnector_iOS.h in Headers */ = {isa = PBXBuildFile; fileRef = C5A2969521B4381300D74771 /* KodiConnector_iOS.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -147,6 +150,7 @@
 		C576C291230AA08E0052DC0E /* KodiWrapper+Artist.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KodiWrapper+Artist.swift"; sourceTree = "<group>"; };
 		C576C295230AB7FA0052DC0E /* KodiWrapper+Playqueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KodiWrapper+Playqueue.swift"; sourceTree = "<group>"; };
 		C576C2A5230BF2750052DC0E /* KodiWrapper+Genre.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KodiWrapper+Genre.swift"; sourceTree = "<group>"; };
+		C576C2A9230C727B0052DC0E /* KodiWrapper+Folder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KodiWrapper+Folder.swift"; sourceTree = "<group>"; };
 		C5A2969221B4381300D74771 /* KodiConnector.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = KodiConnector.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C5A2969521B4381300D74771 /* KodiConnector_iOS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KodiConnector_iOS.h; sourceTree = "<group>"; };
 		C5A2969621B4381300D74771 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -342,6 +346,7 @@
 				C576C28D230AA07F0052DC0E /* KodiWrapper+Album.swift */,
 				C576C291230AA08E0052DC0E /* KodiWrapper+Artist.swift */,
 				C576C2A5230BF2750052DC0E /* KodiWrapper+Genre.swift */,
+				C576C2A9230C727B0052DC0E /* KodiWrapper+Folder.swift */,
 			);
 			path = KodiConnector;
 			sourceTree = "<group>";
@@ -700,6 +705,7 @@
 				C576C28A230A6BDE0052DC0E /* KodiWrapper+Song.swift in Sources */,
 				C5A3F7242234F494004EA8EB /* KodiGenreBrowseViewModel.swift in Sources */,
 				C528030621B5C08E00270382 /* KodiPlayer.swift in Sources */,
+				C576C2AA230C727B0052DC0E /* KodiWrapper+Folder.swift in Sources */,
 				C5A3F72C2234FA83004EA8EB /* KodiPlayerBrowser.swift in Sources */,
 				C576C292230AA08E0052DC0E /* KodiWrapper+Artist.swift in Sources */,
 				C5A3F7202234F482004EA8EB /* KodiSongBrowseViewModel.swift in Sources */,
@@ -725,6 +731,7 @@
 				C5A3F7112234F3DF004EA8EB /* KodiAlbumBrowseViewModel.swift in Sources */,
 				C5A3F71D2234F46F004EA8EB /* KodiPlaylistBrowseViewModel.swift in Sources */,
 				C5A3F7152234F43B004EA8EB /* KodiAlbumSectionBrowseViewModel.swift in Sources */,
+				C576C2AB230C727B0052DC0E /* KodiWrapper+Folder.swift in Sources */,
 				C5A3F70D2234F2D2004EA8EB /* KodiBrowse.swift in Sources */,
 				C576C283230985940052DC0E /* KodiWrapper+Status.swift in Sources */,
 				C5A3F7192234F459004EA8EB /* KodiArtistBrowseViewModel.swift in Sources */,
@@ -753,6 +760,7 @@
 				C5A3F7122234F3DF004EA8EB /* KodiAlbumBrowseViewModel.swift in Sources */,
 				C5A3F71E2234F46F004EA8EB /* KodiPlaylistBrowseViewModel.swift in Sources */,
 				C5A3F7162234F43B004EA8EB /* KodiAlbumSectionBrowseViewModel.swift in Sources */,
+				C576C2AC230C727B0052DC0E /* KodiWrapper+Folder.swift in Sources */,
 				C5A3F70E2234F2D2004EA8EB /* KodiBrowse.swift in Sources */,
 				C576C284230985940052DC0E /* KodiWrapper+Status.swift in Sources */,
 				C5A3F71A2234F459004EA8EB /* KodiArtistBrowseViewModel.swift in Sources */,

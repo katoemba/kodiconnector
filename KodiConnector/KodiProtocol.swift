@@ -121,6 +121,35 @@ public struct KodiGenres: Decodable {
     var limits: Limits
 }
 
+public struct KodiSource: Decodable {
+    var file: String
+    var label: String
+}
+public struct KodiSources: Decodable {
+    var sources: [KodiSource]
+    var limits: Limits
+}
+
+public struct KodiFile: Decodable {
+    var file: String
+    var filetype: String
+    var label: String
+    var type: String
+    var thumbnail: String
+    var id: Int?
+    var displayartist: String?
+    var albumartist: [String]?
+    var album: String?
+    var duration: Int?
+    var year: Int?
+    var genre: [String]?
+    var track: Int?
+}
+public struct KodiFiles: Decodable {
+    var files: [KodiFile]
+    var limits: Limits
+}
+
 public protocol KodiProtocol {
     func getKodiVersion() -> Observable<String>
     func getApiVersion() -> Observable<String>
@@ -154,4 +183,7 @@ public protocol KodiProtocol {
 
     func getGenres() -> Observable<KodiGenres>
     func playGenre(_ genreid: Int, shuffle: Bool) -> Observable<Bool>
+    
+    func getSources() -> Observable<KodiSources>
+    func getDirectory(_ path: String) -> Observable<KodiFiles>
 }

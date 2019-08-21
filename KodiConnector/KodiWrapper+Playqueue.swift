@@ -27,7 +27,7 @@ extension KodiWrapper {
         let parameters = ["jsonrpc": "2.0",
                           "method": "Playlist.GetItems",
                           "params": ["playlistid": 0,
-                                     "properties": KodiWrapper.songParams,
+                                     "properties": KodiWrapper.songProperties,
                                      "limits": ["start": start, "end": end]],
                           "id": "getPlaylistItems"] as [String : Any]
         

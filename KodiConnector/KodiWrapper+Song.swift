@@ -10,7 +10,7 @@ import Foundation
 import RxSwift
 
 extension KodiWrapper {
-    public static let songParams = ["album", "displayartist", "albumartist", "duration", "track", "thumbnail", "year", "genre", "file"]
+    public static let songProperties = ["album", "displayartist", "albumartist", "duration", "track", "thumbnail", "year", "genre", "file"]
     
     public func getCurrentSong() -> Observable<KodiSong> {
         struct Root: Decodable {
@@ -22,7 +22,7 @@ extension KodiWrapper {
 
         let parameters = ["jsonrpc": "2.0",
                           "method": "Player.GetItem",
-                          "params": ["playerid": playerId, "properties": KodiWrapper.songParams],
+                          "params": ["playerid": playerId, "properties": KodiWrapper.songProperties],
                           "id": "getCurrentSong"] as [String : Any]
         
         return dataPostRequest(kodi.jsonRpcUrl, parameters: parameters)
@@ -45,7 +45,7 @@ extension KodiWrapper {
         
         let parameters = ["jsonrpc": "2.0",
                           "method": "AudioLibrary.GetSongs",
-                          "params": ["properties": KodiWrapper.songParams,
+                          "params": ["properties": KodiWrapper.songProperties,
                                      "filter": filter,
                                      "sort": ["order": "ascending", "method": "track"]],
                           "id": "getSongsOnAlbum"] as [String : Any]

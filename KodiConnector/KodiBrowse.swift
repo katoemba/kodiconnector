@@ -119,11 +119,11 @@ public class KodiBrowse: BrowseProtocol {
     }
     
     public func folderContentsBrowseViewModel() -> FolderBrowseViewModel {
-        return KodiFolderBrowseViewModel()
+        return KodiFolderBrowseViewModel(kodi: kodi)
     }
     
     public func folderContentsBrowseViewModel(_ parentFolder: Folder) -> FolderBrowseViewModel {
-        return KodiFolderBrowseViewModel()
+        return KodiFolderBrowseViewModel(kodi: kodi, parentFolder: parentFolder)
     }
     
     public func artistFromSong(_ song: Song) -> Observable<Artist> {
@@ -198,5 +198,49 @@ extension KodiArtist {
 extension KodiGenre {
     var genre: Genre {
         return Genre(id: "\(uniqueId)", source: .Local, name: label)
+    }
+}
+
+extension KodiSource {
+    var folder: Folder {
+        return Folder(id: file, source: .Local, path: file, name: label)
+    }
+}
+
+extension KodiFile {
+    var folderContent: FolderContent? {
+        if filetype == "directory" {
+            return .folder(Folder(id: file, source: .Local, path: file, name: label))
+        }
+        else if filetype == "file" && type == "song" {
+            guard let id = id else { return nil }
+            
+            let albumartistToUse: String
+            if let albumartist = albumartist, albumartist.count > 0 {
+                albumartistToUse = albumartist[0]
+            }
+            else {
+                albumartistToUse = displayartist ?? ""
+            }
+            var song = Song(id: "\(id)",
+                source: .Local,
+                location: file,
+                title: label,
+                album: album ?? "",
+                artist: displayartist ?? "",
+                albumartist: albumartistToUse,
+                composer: "",
+                year: year ?? 0,
+                genre: genre ?? [],
+                length: duration ?? 0,
+                quality: QualityStatus(samplerate: "", encoding: "", channels: "", filetype: ""),
+                position: 0,
+                track: track ?? 0)
+            song.coverURI = CoverURI.fullPathURI(thumbnail)
+
+            return .song(song)
+        }
+        
+        return nil
     }
 }
