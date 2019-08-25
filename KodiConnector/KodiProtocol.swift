@@ -153,20 +153,33 @@ public struct KodiFiles: Decodable {
 public protocol KodiProtocol {
     func getKodiVersion() -> Observable<String>
     func getApiVersion() -> Observable<String>
+    func getApplicationProperties() -> Observable<(String, String, Int)>
     
     func pong() -> Observable<Bool>
     func getActivePlayers() -> Observable<(Int, Bool)>
     
     func getAudioPlaylist() -> Observable<Int>
     func getPlayerProperties() -> Observable<KodiPlayerProperties>
+    func parseNotification(_ notification: Data) -> Notification?
     
     func getPlayQueue(start: Int, end: Int) -> Observable<[KodiSong]>
     func clearPlayqueue(_ playlistId: Int) -> Observable<Bool>
     
+    func play() -> Observable<Bool>
+    func pause() -> Observable<Bool>
+    func stop() -> Observable<Bool>
     func togglePlayPause() -> Observable<Bool>
     func back() -> Observable<Bool>
     func skip() -> Observable<Bool>
     func goto(_ index: Int) -> Observable<Bool>
+    func setShuffle(_ on: Bool) -> Observable<Bool>
+    func toggleShuffle() -> Observable<Bool>
+    func setRepeat(_ mode: String) -> Observable<Bool>
+    func cycleRepeat() -> Observable<Bool>
+    func setVolume(_ volume: Float) -> Observable<Bool>
+    func seek(_ seconds: UInt32) -> Observable<Bool>
+    func seek(_ percentage: Float) -> Observable<Bool>
+    
     
     func getCurrentSong() -> Observable<KodiSong>
     func getSongsOnAlbum(_ albumid: Int) -> Observable<[KodiSong]>

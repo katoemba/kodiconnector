@@ -63,4 +63,40 @@ extension KodiWrapper {
                 Observable.just("0.0.0")
             })
     }
+
+    public func getApplicationProperties() -> Observable<(String, String, Int)> {
+        struct Root: Decodable {
+            var result: Properties
+        }
+        struct Properties: Decodable {
+            var name: String
+            var version: Version
+            var volume: Int
+        }
+        struct Version: Decodable {
+            var major: Int
+            var minor: Int
+            var revision: String
+            var tag: String
+            
+            var description: String {
+                return "\(major):\(minor):\(revision) \(tag)"
+            }
+        }
+        
+        let parameters = ["jsonrpc": "2.0",
+                          "method": "Application.GetProperties",
+                          "params": ["properties": ["volume", "name", "version"]],
+                          "id": "getProperties"] as [String : Any]
+        
+        return dataPostRequest(kodi.jsonRpcUrl, parameters: parameters)
+            .map({ (response, data) -> (String, String, Int) in
+                let json = try JSONDecoder().decode(Root.self, from: data)
+                
+                return (json.result.name, json.result.version.description, json.result.volume)
+            })
+            .catchError({ (error) -> Observable<(String, String, Int)> in
+                Observable.empty()
+            })
+    }
 }

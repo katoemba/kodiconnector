@@ -15,7 +15,8 @@ public class KodiWrapper: KodiProtocol {
     private let encoding = JSONEncoding.default
     private let headers = ["Content-Type": "application/json"]
     private(set) var kodi: KodiAddress
-    private(set) var playerId = -1
+    // For now, fix the playerId to 0 which is the music player (at least until v17 / v18).
+    public var playerId = 0
     
     private var bag = DisposeBag()
     
@@ -28,13 +29,5 @@ public class KodiWrapper: KodiProtocol {
     
     public init(kodi: KodiAddress) {
         self.kodi = kodi
-        getActivePlayers()
-            .filter({ (_, found) -> Bool in
-                found == true
-            })
-            .subscribe(onNext: { [weak self] (playerId, found) in
-                self?.playerId = playerId
-            })
-            .disposed(by: bag)
     }
 }

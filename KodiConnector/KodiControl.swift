@@ -9,7 +9,6 @@
 import Foundation
 import ConnectorProtocol
 import RxSwift
-import RxCocoa
 
 public class KodiControl: ControlProtocol {
     private var kodi: KodiProtocol
@@ -19,7 +18,7 @@ public class KodiControl: ControlProtocol {
     }
     
     public func play() -> Observable<PlayerStatus> {
-        return Observable.empty()
+        return requestWithStatus(controlObservable: kodi.play())
     }
     
     public func play(index: Int) -> Observable<PlayerStatus> {
@@ -27,11 +26,11 @@ public class KodiControl: ControlProtocol {
     }
     
     public func pause() -> Observable<PlayerStatus> {
-        return Observable.empty()
+        return requestWithStatus(controlObservable: kodi.pause())
     }
     
     public func stop() -> Observable<PlayerStatus> {
-        return Observable.empty()
+        return requestWithStatus(controlObservable: kodi.stop())
     }
     
     private func requestWithStatus(controlObservable: Observable<Bool>) -> Observable<PlayerStatus> {
@@ -59,11 +58,11 @@ public class KodiControl: ControlProtocol {
     }
     
     public func setRandom(_ randomMode: RandomMode) -> Observable<PlayerStatus> {
-        return Observable.empty()
+        return requestWithStatus(controlObservable: kodi.setShuffle(randomMode == .On))
     }
     
     public func toggleRandom() -> Observable<PlayerStatus> {
-        return Observable.empty()
+        return requestWithStatus(controlObservable: kodi.toggleShuffle())
     }
     
     public func shufflePlayqueue() -> Observable<PlayerStatus> {
@@ -71,11 +70,11 @@ public class KodiControl: ControlProtocol {
     }
     
     public func setRepeat(_ repeatMode: RepeatMode) -> Observable<PlayerStatus> {
-        return Observable.empty()
+        return requestWithStatus(controlObservable: kodi.setRepeat(repeatMode == .All ? "all" : (repeatMode == .Single ? "one" : "off")))
     }
     
     public func toggleRepeat() -> Observable<PlayerStatus> {
-        return Observable.empty()
+        return requestWithStatus(controlObservable: kodi.cycleRepeat())
     }
     
     public func setConsume(_ consumeMode: ConsumeMode) {
@@ -85,12 +84,24 @@ public class KodiControl: ControlProtocol {
     }
     
     public func setVolume(_ volume: Float) {
+        // Don't use a dispose bag, as that will immediately release the observable.
+        _ = kodi.setVolume(volume)
+            .subscribe(onNext: { (_) in
+            })
     }
     
     public func setSeek(seconds: UInt32) {
+        // Don't use a dispose bag, as that will immediately release the observable.
+        _ = kodi.seek(seconds)
+            .subscribe(onNext: { (_) in
+            })
     }
     
     public func setSeek(percentage: Float) {
+        // Don't use a dispose bag, as that will immediately release the observable.
+        _ = kodi.seek(percentage)
+            .subscribe(onNext: { (_) in
+            })
     }
     
     public func add(_ song: Song, addDetails: AddDetails) -> Observable<(Song, AddResponse)> {
