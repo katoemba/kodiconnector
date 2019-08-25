@@ -12,9 +12,14 @@ import RxAlamofire
 import Alamofire
 
 public class KodiWrapper: KodiProtocol {
+    
     private let encoding = JSONEncoding.default
     private let headers = ["Content-Type": "application/json"]
     private(set) var kodi: KodiAddress
+    public var kodiAddress: KodiAddress {
+        return kodi
+    }
+
     // For now, fix the playerId to 0 which is the music player (at least until v17 / v18).
     public var playerId = 0
     

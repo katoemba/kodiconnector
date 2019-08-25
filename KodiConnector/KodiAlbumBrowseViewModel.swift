@@ -82,9 +82,11 @@ public class KodiAlbumBrowseViewModel: AlbumBrowseViewModel {
                 .do() { [weak self] in
                     self?.loadProgress.accept(.dataAvailable)
                 }
-                .map({ (kodiAlbums) -> [Album] in
-                    kodiAlbums.albums.map({ (kodiAlbum) -> Album in
-                        kodiAlbum.album
+                .map({ [weak self] (kodiAlbums) -> [Album] in
+                    guard let weakSelf = self else { return [] }
+                    
+                    return kodiAlbums.albums.map({ (kodiAlbum) -> Album in
+                        kodiAlbum.album(kodiAddress: weakSelf.kodi.kodiAddress)
                     })
                 })
                 .bind(to: albumsSubject)
@@ -109,9 +111,11 @@ public class KodiAlbumBrowseViewModel: AlbumBrowseViewModel {
                 .do() { [weak self] in
                     self?.loadProgress.accept(.dataAvailable)
                 }
-                .map({ (kodiAlbums) -> [Album] in
-                    kodiAlbums.albums.map({ (kodiAlbum) -> Album in
-                        kodiAlbum.album
+                .map({ [weak self] (kodiAlbums) -> [Album] in
+                    guard let weakSelf = self else { return [] }
+                    
+                    return kodiAlbums.albums.map({ (kodiAlbum) -> Album in
+                        kodiAlbum.album(kodiAddress: weakSelf.kodi.kodiAddress)
                     })
                 })
                 .bind(to: albumsSubject)
@@ -128,9 +132,11 @@ public class KodiAlbumBrowseViewModel: AlbumBrowseViewModel {
                 .do() { [weak self] in
                     self?.loadProgress.accept(.dataAvailable)
                 }
-                .map({ (kodiAlbums) -> [Album] in
-                    kodiAlbums.albums.map({ (kodiAlbum) -> Album in
-                        kodiAlbum.album
+                .map({ [weak self] (kodiAlbums) -> [Album] in
+                    guard let weakSelf = self else { return [] }
+                    
+                    return kodiAlbums.albums.map({ (kodiAlbum) -> Album in
+                        kodiAlbum.album(kodiAddress: weakSelf.kodi.kodiAddress)
                     })
                 })
                 .bind(to: albumsSubject)
@@ -184,9 +190,11 @@ public class KodiAlbumBrowseViewModel: AlbumBrowseViewModel {
             .disposed(by: bag)
         
         albumFetchObservable
-            .map({ (kodiAlbums) -> [Album] in
-                kodiAlbums.albums.map({ (kodiAlbum) -> Album in
-                    kodiAlbum.album
+            .map({ [weak self] (kodiAlbums) -> [Album] in
+                guard let weakSelf = self else { return [] }
+
+                return kodiAlbums.albums.map({ (kodiAlbum) -> Album in
+                    kodiAlbum.album(kodiAddress: weakSelf.kodi.kodiAddress)
                 })
             })
             .scan([]) { inputAlbums, newAlbums in

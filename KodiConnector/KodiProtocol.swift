@@ -151,6 +151,8 @@ public struct KodiFiles: Decodable {
 }
 
 public protocol KodiProtocol {
+    var kodiAddress: KodiAddress { get }
+    
     func getKodiVersion() -> Observable<String>
     func getApiVersion() -> Observable<String>
     func getApplicationProperties() -> Observable<(String, String, Int)>
@@ -179,7 +181,6 @@ public protocol KodiProtocol {
     func setVolume(_ volume: Float) -> Observable<Bool>
     func seek(_ seconds: UInt32) -> Observable<Bool>
     func seek(_ percentage: Float) -> Observable<Bool>
-    
     
     func getCurrentSong() -> Observable<KodiSong>
     func getSongsOnAlbum(_ albumid: Int) -> Observable<[KodiSong]>

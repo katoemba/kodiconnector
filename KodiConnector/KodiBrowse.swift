@@ -32,9 +32,11 @@ public class KodiBrowse: BrowseProtocol {
         }
         
         return kodi.getSongsOnAlbum(albumId)
-            .map({ (kodiSongs) -> [Song] in
-                kodiSongs.map({ (kodiSong) -> Song in
-                    kodiSong.song
+            .map({ [weak self] (kodiSongs) -> [Song] in
+                guard let weakSelf = self else { return [] }
+
+                return kodiSongs.map({ (kodiSong) -> Song in
+                    kodiSong.song(kodiAddress: weakSelf.kodi.kodiAddress)
                 })
             })
     }
@@ -145,47 +147,46 @@ public class KodiBrowse: BrowseProtocol {
 }
 
 extension KodiSong {
-    var song: Song {
-        get {
-            var song = Song(id: "\(uniqueId)",
-                source: .Local,
-                location: file,
-                title: label,
-                album: album,
-                artist: displayartist,
-                albumartist: albumartist.count > 0 ? albumartist[0] : displayartist,
-                composer: "",
-                year: year,
-                genre: genre,
-                length: duration,
-                quality: QualityStatus(samplerate: "", encoding: "", channels: "", filetype: ""),
-                position: 0,
-                track: track)
-            song.coverURI = CoverURI.fullPathURI(thumbnail)
-            //song.coverURI = CoverURI.fullPathURI("http://\(kodi.ip):\(kodi.port)/image/\(dict["thumbnail"].stringValue.addingPercentEncoding(withAllowedCharacters: .letters)!)")
-            
-            return song
+    public func song(kodiAddress: KodiAddress) -> Song {
+        var song = Song(id: "\(uniqueId)",
+            source: .Local,
+            location: file,
+            title: label,
+            album: album,
+            artist: displayartist,
+            albumartist: albumartist.count > 0 ? albumartist[0] : displayartist,
+            composer: "",
+            year: year,
+            genre: genre,
+            length: duration,
+            quality: QualityStatus(samplerate: "", encoding: "", channels: "", filetype: ""),
+            position: 0,
+            track: track)
+        if thumbnail != "" {
+            song.coverURI = CoverURI.fullPathURI("\(kodiAddress.baseUrl)image/\(thumbnail.addingPercentEncoding(withAllowedCharacters: .letters)!)")
         }
+
+        return song
     }
 }
 
 extension KodiAlbum {
-    var album: Album {
-        get {
-            var album = Album(id: "\(uniqueId)",
-                source: .Local,
-                location: "",
-                title: label,
-                artist: displayartist,
-                year: year,
-                genre: genre,
-                length: 0,
-                sortTitle: label,
-                sortArtist: displayartist)
-            album.coverURI = CoverURI.fullPathURI(thumbnail)
-
-            return album
+    public func album(kodiAddress: KodiAddress) -> Album {
+        var album = Album(id: "\(uniqueId)",
+            source: .Local,
+            location: "",
+            title: label,
+            artist: displayartist,
+            year: year,
+            genre: genre,
+            length: 0,
+            sortTitle: label,
+            sortArtist: displayartist)
+        if thumbnail != "" {
+            album.coverURI = CoverURI.fullPathURI("\(kodiAddress.baseUrl)image/\(thumbnail.addingPercentEncoding(withAllowedCharacters: .letters)!)")
         }
+        
+        return album
     }
 }
 
@@ -208,7 +209,7 @@ extension KodiSource {
 }
 
 extension KodiFile {
-    var folderContent: FolderContent? {
+    public func folderContent(kodiAddress: KodiAddress) -> FolderContent? {
         if filetype == "directory" {
             return .folder(Folder(id: file, source: .Local, path: file, name: label))
         }
@@ -236,7 +237,9 @@ extension KodiFile {
                 quality: QualityStatus(samplerate: "", encoding: "", channels: "", filetype: ""),
                 position: 0,
                 track: track ?? 0)
-            song.coverURI = CoverURI.fullPathURI(thumbnail)
+            if thumbnail != "" {
+                song.coverURI = CoverURI.fullPathURI("\(kodiAddress.baseUrl)image/\(thumbnail.addingPercentEncoding(withAllowedCharacters: .letters)!)")
+            }
 
             return .song(song)
         }

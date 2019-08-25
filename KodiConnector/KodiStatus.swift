@@ -79,10 +79,12 @@ public class KodiStatus: StatusProtocol {
     
     public func playqueueSongs(start: Int, end: Int) -> Observable<[Song]> {
         return kodi.getPlayQueue(start: start, end: end)
-            .map({ (kodiSongs) -> [Song] in
+            .map({ [weak self] (kodiSongs) -> [Song] in
+                guard let weakSelf = self else { return [] }
+
                 var position = start
                 return kodiSongs.map({ (kodiSong) -> Song in
-                    var song = kodiSong.song
+                    var song = kodiSong.song(kodiAddress: weakSelf.kodi.kodiAddress)
                     song.position = position
                     position += 1
                     
@@ -122,9 +124,11 @@ public class KodiStatus: StatusProtocol {
             })
             .flatMap({ (playerStatus) -> Observable<PlayerStatus> in
                 kodi.getCurrentSong()
-                    .map({ (song) -> PlayerStatus in
+                    .map({ [weak self] (song) -> PlayerStatus in
+                        guard let weakSelf = self else { return PlayerStatus() }
+
                         var updatedPlayerStatus = playerStatus
-                        updatedPlayerStatus.currentSong = song.song
+                        updatedPlayerStatus.currentSong = song.song(kodiAddress: weakSelf.kodi.kodiAddress)
                         return updatedPlayerStatus
                     })
             })
@@ -234,7 +238,7 @@ public class KodiStatus: StatusProtocol {
                     guard let weakSelf = self else { return }
                     
                     var playerStatus = weakSelf.updateTimes(playerStatus: playerStatus, elapsedTime: 0, duration: kodiSong.duration)
-                    playerStatus.currentSong = kodiSong.song
+                    playerStatus.currentSong = kodiSong.song(kodiAddress: weakSelf.kodi.kodiAddress)
                     playerStatus.lastUpdateTime = Date()
                     weakSelf.playerStatus.onNext(playerStatus)
                 })

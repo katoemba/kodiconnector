@@ -110,9 +110,11 @@ public class KodiSongBrowseViewModel: SongBrowseViewModel {
             }
             
             songsObservable = kodi.getSongsOnAlbum(albumId)
-                .map({ (kodiSongs) -> [Song] in
-                    kodiSongs.map({ (kodiSong) -> Song in
-                        kodiSong.song
+                .map({ [weak self] (kodiSongs) -> [Song] in
+                    guard let weakSelf = self else { return [] }
+
+                    return kodiSongs.map({ (kodiSong) -> Song in
+                        kodiSong.song(kodiAddress: weakSelf.kodi.kodiAddress)
                     })
                 })
                 .map({ (songs) -> [Song] in
