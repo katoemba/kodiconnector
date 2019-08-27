@@ -56,7 +56,7 @@ public class KodiBrowse: BrowseProtocol {
     }
     
     public func albumSectionBrowseViewModel() -> AlbumSectionBrowseViewModel {
-        return KodiAlbumSectionBrowseViewModel()
+        return KodiAlbumSectionBrowseViewModel(kodi: kodi)
     }
     
     public func albumBrowseViewModel() -> AlbumBrowseViewModel {

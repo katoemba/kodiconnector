@@ -22,7 +22,7 @@ extension KodiWrapper {
                           "params": ["albumartistsonly": albumartistsonly,
                                      "properties": KodiWrapper.artistProperties,
                                      "limits": ["start": start, "end": end],
-                                     "sort": ["order": "ascending", "method": "artist"]],
+                                     "sort": ["order": "ascending", "method": "artist", "ignorearticle": true]],
                           "id": "getArtists"] as [String : Any]
         
         return dataPostRequest(kodi.jsonRpcUrl, parameters: parameters)

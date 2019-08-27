@@ -164,7 +164,7 @@ public class KodiAlbumBrowseViewModel: AlbumBrowseViewModel {
         let kodi = self.kodi
         let albumFetchObservable = loadNextBatchObservable
             .flatMap { limits -> Observable<KodiAlbums> in
-                return kodi.getAlbums(start: limits.end, end: limits.end + 100)
+                return kodi.getAlbums(start: limits.end, end: limits.end + 100, sort: "label", sortDirection: "ascending")
             }
             .share()
 

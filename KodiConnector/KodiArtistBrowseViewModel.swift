@@ -8,11 +8,10 @@
 
 import Foundation
 import RxSwift
-import RxCocoa
 import ConnectorProtocol
 
 public class KodiArtistBrowseViewModel: ArtistBrowseViewModel {
-    private var loadProgress = BehaviorRelay<LoadProgress>(value: .notStarted)
+    private var loadProgress = ReplaySubject<LoadProgress>.create(bufferSize: 1)
     public var loadProgressObservable: Observable<LoadProgress> {
         return loadProgress.asObservable()
     }
@@ -33,6 +32,8 @@ public class KodiArtistBrowseViewModel: ArtistBrowseViewModel {
         self.kodi = kodi
         self.filters = filters
         self.artists = artists
+        
+        loadProgress.onNext(.notStarted)
     }
     
     public func load(filters: [BrowseFilter]) {
@@ -45,7 +46,7 @@ public class KodiArtistBrowseViewModel: ArtistBrowseViewModel {
         bag = DisposeBag()
         
         // Clear the contents
-        loadProgress.accept(.loading)
+        loadProgress.onNext(.loading)
         
         var artistObservable: Observable<[Artist]>
         var multiSection: Bool
@@ -103,21 +104,8 @@ public class KodiArtistBrowseViewModel: ArtistBrowseViewModel {
             .disposed(by: bag)
         
         artistObservable
-            .filter { (artists) -> Bool in
-                artists.count == 0
-            }
-            .map { (_) -> LoadProgress in
-                .noDataFound
-            }
-            .bind(to: loadProgress)
-            .disposed(by: bag)
-        
-        artistObservable
-            .filter({ (artists) -> Bool in
-                artists.count > 0
-            })
-            .map { (_) -> LoadProgress in
-                .allDataLoaded
+            .map { (artists) -> LoadProgress in
+                artists.count == 0 ? .noDataFound : .allDataLoaded
             }
             .bind(to: loadProgress)
             .disposed(by: bag)

@@ -34,7 +34,7 @@ extension KodiWrapper {
             })
     }
     
-    public func getAlbums(start: Int, end: Int) -> Observable<KodiAlbums> {
+    public func getAlbums(start: Int, end: Int, sort: String, sortDirection: String) -> Observable<KodiAlbums> {
         struct Root: Decodable {
             var result: KodiAlbums
         }
@@ -43,7 +43,7 @@ extension KodiWrapper {
                           "method": "AudioLibrary.GetAlbums",
                           "params": ["properties": KodiWrapper.albumProperties,
                                      "limits": ["start": start, "end": end],
-                                     "sort": ["order": "ascending", "method": "artist"]],
+                                     "sort": ["order": sortDirection, "method": sort, "ignorearticle": (sort == "artist" ? true : false)]],
                           "id": "getAlbums"] as [String : Any]
         
         return dataPostRequest(kodi.jsonRpcUrl, parameters: parameters)
@@ -87,7 +87,7 @@ extension KodiWrapper {
                           "method": "AudioLibrary.GetAlbums",
                           "params": ["properties": KodiWrapper.albumProperties,
                                      "filter": ["genreid": genreid],
-                                     "sort": ["order": "ascending", "method": "artist"]],
+                                     "sort": ["order": "ascending", "method": "artist", "ignorearticle": true]],
                           "id": "getArtistAlbums"] as [String : Any]
         
         return dataPostRequest(kodi.jsonRpcUrl, parameters: parameters)
