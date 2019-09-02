@@ -43,24 +43,20 @@ public class KodiStatus: StatusProtocol {
             self.elapsedTimeScheduler = scheduler!
         }
 
-        socket = WebSocket(url: URL(string: "ws://libreelec.local:9090/jsonrpc")!)
+        socket = WebSocket(url: URL(string: "ws://\(kodi.kodiAddress.ip):\(kodi.kodiAddress.websocketPort)/jsonrpc")!)
         initWebSocket(socket)
-    }
-    
-    deinit {
-        socket.disconnect()
-    }
-    
-    public func startMonitoring() {
-        socket.connect()
         
+        // Setup a timer to forward the seek value when monitoring
         let playerStatusSubject = self.playerStatus
         Observable<Int>
             .timer(RxTimeInterval.seconds(1), period: RxTimeInterval.seconds(1), scheduler: elapsedTimeScheduler)
+            .filter({ [weak self] (_) -> Bool in
+                self?.socket.isConnected ?? false
+            })
             .withLatestFrom(playerStatus)
             .map({ [weak self] (playerStatus) -> PlayerStatus? in
                 guard let weakSelf = self, playerStatus.playing.playPauseMode == .Playing else { return nil }
-
+                
                 var newPlayerStatus = playerStatus
                 newPlayerStatus.time.elapsedTime = weakSelf.lastKnownElapsedTime + Int(Date().timeIntervalSince(weakSelf.lastKnownElapsedTimeRecorded))
                 return newPlayerStatus
@@ -73,8 +69,30 @@ public class KodiStatus: StatusProtocol {
             .disposed(by: bag)
     }
     
+    deinit {
+        socket.disconnect()
+    }
+    
+    public func startMonitoring() {
+        socket.connect()
+    }
+    
     public func stopMonitoring() {
         socket.disconnect()
+    }
+    
+    public func kodiSettingsChanged(kodi: KodiProtocol) {
+        guard kodi.kodiAddress.websocketPort != self.kodi.kodiAddress.websocketPort else { return }
+        
+        if socket.isConnected {
+            socket.disconnect()
+        }
+        
+        self.kodi = kodi
+        socket = WebSocket(url: URL(string: "ws://\(kodi.kodiAddress.ip):\(kodi.kodiAddress.websocketPort)/jsonrpc")!)
+        initWebSocket(socket)
+        
+        socket.connect()
     }
     
     public func playqueueSongs(start: Int, end: Int) -> Observable<[Song]> {

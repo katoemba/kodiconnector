@@ -12,6 +12,7 @@ import RxSwift
 public struct KodiAddress {
     var ip: String
     var port: Int
+    var websocketPort: Int
     
     public var baseUrl: URL {
         return URL(string: "http://\(ip):\(port)/")!
@@ -159,7 +160,9 @@ public protocol KodiProtocol {
     
     func pong() -> Observable<Bool>
     func getActivePlayers() -> Observable<(Int, Bool)>
-    
+    func scan() -> Observable<Bool>
+    func clean() -> Observable<Bool>
+
     func getAudioPlaylist() -> Observable<Int>
     func getPlayerProperties() -> Observable<KodiPlayerProperties>
     func parseNotification(_ notification: Data) -> Notification?

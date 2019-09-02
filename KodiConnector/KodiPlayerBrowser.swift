@@ -20,20 +20,22 @@ public class KodiPlayerBrowser: PlayerBrowserProtocol {
 
     public var addPlayerObservable: Observable<PlayerProtocol>
     public var removePlayerObservable: Observable<PlayerProtocol>
-
+    
+    private let settingsChangedSubject = PublishSubject<KodiPlayer>()
     private var userDefaults: UserDefaults
 
     private let bag = DisposeBag()
     
     public init(userDefaults: UserDefaults) {
         self.userDefaults = userDefaults
+        let localSettingsChangedSubject = settingsChangedSubject
         
         kodiNetServiceBrowser = NetServiceBrowser()
         addPlayerObservable = kodiNetServiceBrowser.rx.serviceAdded
             .flatMap { (service) -> Observable<PlayerProtocol> in
                 guard let hostName = service.hostName else { return Observable.empty() }
 
-                let kodi = KodiWrapper(kodi: KodiAddress(ip: hostName, port: service.port))
+                let kodi = KodiWrapper(kodi: KodiAddress(ip: hostName, port: service.port, websocketPort: 9090))
                 return kodi.pong()
                     .filter({ (pongSuccessful) -> Bool in
                         pongSuccessful == true
@@ -42,7 +44,7 @@ public class KodiPlayerBrowser: PlayerBrowserProtocol {
                         kodi.getKodiVersion()
                     })
                     .map({ (kodiVersion) -> PlayerProtocol in
-                        KodiPlayer(name: service.name, host: hostName, port: service.port, version: kodiVersion, userDefaults: userDefaults)
+                        KodiPlayer(name: service.name, host: hostName, port: service.port, version: kodiVersion, userDefaults: userDefaults, settingsChangedSubject: localSettingsChangedSubject)
                     })
             }
             .share(replay: 1)

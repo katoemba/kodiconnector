@@ -60,4 +60,32 @@ extension KodiWrapper {
                 Observable.empty()
             })
     }
+    
+    public func scan() -> Observable<Bool> {
+        let parameters = ["jsonrpc": "2.0",
+                          "method": "AudioLibrary.Scan",
+                          "id": "scan"] as [String : Any]
+        
+        return dataPostRequest(kodi.jsonRpcUrl, parameters: parameters)
+            .map({ (response, data) -> (Bool) in
+                return true
+            })
+            .catchError({ (error) -> Observable<(Bool)> in
+                Observable.just(false)
+            })
+    }
+
+    public func clean() -> Observable<Bool> {
+        let parameters = ["jsonrpc": "2.0",
+                          "method": "AudioLibrary.Clean",
+                          "id": "clean"] as [String : Any]
+        
+        return dataPostRequest(kodi.jsonRpcUrl, parameters: parameters)
+            .map({ (response, data) -> (Bool) in
+                return true
+            })
+            .catchError({ (error) -> Observable<(Bool)> in
+                Observable.just(false)
+            })
+    }
 }

@@ -86,22 +86,19 @@ public class KodiControl: ControlProtocol {
     public func setVolume(_ volume: Float) {
         // Don't use a dispose bag, as that will immediately release the observable.
         _ = kodi.setVolume(volume)
-            .subscribe(onNext: { (_) in
-            })
+            .subscribe()
     }
     
     public func setSeek(seconds: UInt32) {
         // Don't use a dispose bag, as that will immediately release the observable.
         _ = kodi.seek(seconds)
-            .subscribe(onNext: { (_) in
-            })
+            .subscribe()
     }
     
     public func setSeek(percentage: Float) {
         // Don't use a dispose bag, as that will immediately release the observable.
         _ = kodi.seek(percentage)
-            .subscribe(onNext: { (_) in
-            })
+            .subscribe()
     }
     
     public func add(_ song: Song, addDetails: AddDetails) -> Observable<(Song, AddResponse)> {
@@ -184,15 +181,13 @@ public class KodiControl: ControlProtocol {
         let kodi = self.kodi
         
         _ = kodi.getPlayerProperties()
-            .debug()
             .map({ (playerProperties) -> Int in
                 playerProperties.playlistid
             })
             .flatMap({ (playlistId) -> Observable<Bool> in
                 kodi.clearPlayqueue(playlistId)
             })
-            .subscribe(onNext: { (_) in
-            })
+            .subscribe()
     }
     
     public func playStation(_ station: Station) {
