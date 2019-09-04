@@ -44,6 +44,10 @@ public class KodiPlayer: PlayerProtocol {
         return "Kodi \(version)"
     }
     
+    public var supportedFunctions: [Functions] {
+        return [.recentlyAddedAlbums]
+    }
+    
     public var connectionProperties: [String : Any] {
         get {
             let password = (self.loadSetting(id: ConnectionProperties.Password.rawValue) as? StringSetting)?.value ?? ""
