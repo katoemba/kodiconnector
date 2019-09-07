@@ -35,31 +35,57 @@ extension KodiWrapper {
             })
     }
 
-    public func getArtistId(_ name: String) -> Observable<Int> {
+    private func getArtistsWithFilter(_ filter: [String: Any], sort: [String: Any], limit: Int = 0) -> Observable<KodiArtists> {
         struct Root: Decodable {
             var result: KodiArtists
         }
+        
+        var params = ["properties": KodiWrapper.artistProperties,
+                      "filter": filter,
+                      "sort": sort] as [String: Any]
+        if limit > 0 {
+            params["limits"] = ["start": 0, "end": limit]
+        }
+        let parameters = ["jsonrpc": "2.0",
+                          "method": "AudioLibrary.GetArtists",
+                          "params": params,
+                          "id": "getArtist"] as [String : Any]
+        
+        return dataPostRequest(kodi.jsonRpcUrl, parameters: parameters)
+            .map({ (response, data) -> (KodiArtists) in
+                let root = try JSONDecoder().decode(Root.self, from: data)
+                
+                return root.result
+            })
+            .catchError({ (error) -> Observable<KodiArtists> in
+                Observable.just(KodiArtists(artists:[], limits: Limits(start: 0, end: 0, total: 0)))
+            })
+    }
+    
+    public func getArtistId(_ name: String) -> Observable<Int> {
         enum MyError: Error {
             case artistNotFound
         }
 
-        let parameters = ["jsonrpc": "2.0",
-                          "method": "AudioLibrary.GetArtists",
-                          "params": ["properties": KodiWrapper.artistProperties,
-                                     "filter": ["field": "artist", "operator": "is", "value": name]],
-                          "id": "getArtist"] as [String : Any]
-        
-        return dataPostRequest(kodi.jsonRpcUrl, parameters: parameters)
-            .map({ (response, data) -> (Int) in
-                let root = try JSONDecoder().decode(Root.self, from: data)
-                
-                guard root.result.artists.count > 0, let artistid = root.result.artists[0].artistid else {
+        return getArtistsWithFilter(["field": "artist", "operator": "is", "value": name],
+                                    sort: ["order": "ascending", "method": "name", "ignorearticle": true])
+            .map({ (kodiArtists) -> Int in
+                guard kodiArtists.artists.count > 0, let artistid = kodiArtists.artists[0].artistid else {
                     throw MyError.artistNotFound
                 }
                 return artistid
             })
             .catchError({ (error) -> Observable<Int> in
                 Observable.empty()
+            })
+    }
+
+    public func searchArtists(_ search: String, limit: Int) -> Observable<[KodiArtist]> {
+        return getArtistsWithFilter(["field": "artist", "operator": "contains", "value": search],
+                                    sort: ["order": "ascending", "method": "artist", "ignorearticle": true],
+                                    limit: limit)
+            .map({ (kodiArtists) -> [KodiArtist] in
+                kodiArtists.artists
             })
     }
 
@@ -78,4 +104,5 @@ extension KodiWrapper {
                 Observable.just(false)
             })
     }
+    
 }

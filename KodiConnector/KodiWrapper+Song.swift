@@ -35,7 +35,7 @@ extension KodiWrapper {
             })
     }
     
-    public func getSongsWithFilter(_ filter: [String: Any]) -> Observable<[KodiSong]> {
+    public func getSongsWithFilter(_ filter: [String: Any], sort: [String: Any], limit: Int = 0) -> Observable<[KodiSong]> {
         struct Root: Decodable {
             var result: Result
         }
@@ -43,11 +43,15 @@ extension KodiWrapper {
             var songs: [KodiSong]
         }
         
+        var params = ["properties": KodiWrapper.songProperties,
+                      "filter": filter,
+                      "sort": sort] as [String: Any]
+        if limit > 0 {
+            params["limits"] = ["start": 0, "end": limit]
+        }
         let parameters = ["jsonrpc": "2.0",
                           "method": "AudioLibrary.GetSongs",
-                          "params": ["properties": KodiWrapper.songProperties,
-                                     "filter": filter,
-                                     "sort": ["order": "ascending", "method": "track"]],
+                          "params": params,
                           "id": "getSongsOnAlbum"] as [String : Any]
         
         return dataPostRequest(kodi.jsonRpcUrl, parameters: parameters)
@@ -61,7 +65,13 @@ extension KodiWrapper {
     }
 
     public func getSongsOnAlbum(_ albumid: Int) -> Observable<[KodiSong]> {
-        return getSongsWithFilter(["albumid": albumid])
+        return getSongsWithFilter(["albumid": albumid],
+                                  sort: ["method": "track", "order": "ascending"])
     }
-    
+ 
+    public func searchSongs(_ search: String, limit: Int) -> Observable<[KodiSong]> {
+        return getSongsWithFilter(["field": "title", "operator": "contains", "value": search],
+                                  sort: ["method": "playcount", "order": "descending"],
+                                  limit: limit)
+    }
 }

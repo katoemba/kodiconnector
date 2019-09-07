@@ -30,7 +30,7 @@ extension KodiWrapper {
                 return root.result
             })
             .catchError({ (error) -> Observable<KodiAlbums> in
-                Observable.empty()
+                Observable.just(KodiAlbums(albums:[], limits: Limits(start: 0, end: 0, total: 0)))
             })
     }
     
@@ -52,51 +52,52 @@ extension KodiWrapper {
                 return root.result
             })
             .catchError({ (error) -> Observable<KodiAlbums> in
-                Observable.empty()
+                Observable.just(KodiAlbums(albums:[], limits: Limits(start: 0, end: 0, total: 0)))
+            })
+    }
+    
+    private func getAlbumsWithFilter(_ filter: [String: Any], sort: [String: Any], limit: Int = 0) -> Observable<KodiAlbums> {
+        struct Root: Decodable {
+            var result: KodiAlbums
+        }
+        
+        var params = ["properties": KodiWrapper.albumProperties,
+                      "filter": filter,
+                      "sort": sort] as [String: Any]
+        if limit > 0 {
+            params["limits"] = ["start": 0, "end": limit]
+        }
+        let parameters = ["jsonrpc": "2.0",
+                          "method": "AudioLibrary.GetAlbums",
+                          "params": params,
+                          "id": "getAlbums"] as [String : Any]
+        
+        return dataPostRequest(kodi.jsonRpcUrl, parameters: parameters)
+            .map({ (response, data) -> (KodiAlbums) in
+                let root = try JSONDecoder().decode(Root.self, from: data)
+                return root.result
+            })
+            .catchError({ (error) -> Observable<KodiAlbums> in
+                Observable.just(KodiAlbums(albums:[], limits: Limits(start: 0, end: 0, total: 0)))
             })
     }
     
     public func getAlbums(artistid: Int) -> Observable<KodiAlbums> {
-        struct Root: Decodable {
-            var result: KodiAlbums
-        }
-        
-        let parameters = ["jsonrpc": "2.0",
-                          "method": "AudioLibrary.GetAlbums",
-                          "params": ["properties": KodiWrapper.albumProperties,
-                                     "filter": ["artistid": artistid],
-                                     "sort": ["order": "ascending", "method": "year"]],
-                          "id": "getArtistAlbums"] as [String : Any]
-        
-        return dataPostRequest(kodi.jsonRpcUrl, parameters: parameters)
-            .map({ (response, data) -> (KodiAlbums) in
-                let root = try JSONDecoder().decode(Root.self, from: data)
-                return root.result
-            })
-            .catchError({ (error) -> Observable<KodiAlbums> in
-                Observable.empty()
-            })
+        return getAlbumsWithFilter(["artistid": artistid],
+                                    sort: ["order": "ascending", "method": "year"])
     }
 
     public func getAlbums(genreid: Int) -> Observable<KodiAlbums> {
-        struct Root: Decodable {
-            var result: KodiAlbums
-        }
-        
-        let parameters = ["jsonrpc": "2.0",
-                          "method": "AudioLibrary.GetAlbums",
-                          "params": ["properties": KodiWrapper.albumProperties,
-                                     "filter": ["genreid": genreid],
-                                     "sort": ["order": "ascending", "method": "artist", "ignorearticle": true]],
-                          "id": "getArtistAlbums"] as [String : Any]
-        
-        return dataPostRequest(kodi.jsonRpcUrl, parameters: parameters)
-            .map({ (response, data) -> (KodiAlbums) in
-                let root = try JSONDecoder().decode(Root.self, from: data)
-                return root.result
-            })
-            .catchError({ (error) -> Observable<KodiAlbums> in
-                Observable.empty()
+        return getAlbumsWithFilter(["genreid": genreid],
+                                   sort: ["order": "ascending", "method": "artist", "ignorearticle": true])
+    }
+    
+    public func searchAlbums(_ search: String, limit: Int) -> Observable<[KodiAlbum]> {
+        return getAlbumsWithFilter(["field": "album", "operator": "contains", "value": search],
+                                   sort: ["order": "descending", "method": "playcount"],
+                                   limit: limit)
+            .map({ (kodiAlbums) -> [KodiAlbum] in
+                kodiAlbums.albums
             })
     }
     

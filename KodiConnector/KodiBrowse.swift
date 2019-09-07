@@ -52,7 +52,33 @@ public class KodiBrowse: BrowseProtocol {
     }
     
     public func search(_ search: String, limit: Int, filter: [SourceType]) -> Observable<SearchResult> {
-        return Observable.empty()
+        let songSearch = kodi.searchSongs(search, limit: limit)
+            .map { (songs) -> ([Song]) in
+                songs.map({ (kodiSong) -> Song in
+                    kodiSong.song(kodiAddress: self.kodi.kodiAddress)
+                })
+            }
+        let albumSearch = kodi.searchAlbums(search, limit: limit)
+            .map { (albums) -> ([Album]) in
+                albums.map({ (kodiAlbum) -> Album in
+                    kodiAlbum.album(kodiAddress: self.kodi.kodiAddress)
+                })
+            }
+        let artistSearch = kodi.searchArtists(search, limit: limit)
+            .map { (artists) -> ([Artist]) in
+                artists.map({ (kodiArtist) -> Artist in
+                    kodiArtist.artist
+                })
+            }
+        
+        return Observable.combineLatest(songSearch, albumSearch, artistSearch)
+            .map { (songs, albums,artists) -> SearchResult in
+                var result = SearchResult()
+                result.songs = songs
+                result.albums = albums
+                result.artists = artists
+                return result
+            }
     }
     
     public func albumSectionBrowseViewModel() -> AlbumSectionBrowseViewModel {
