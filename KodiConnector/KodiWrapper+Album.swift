@@ -116,4 +116,38 @@ extension KodiWrapper {
                 Observable.just(false)
             })
     }
+    
+    public func addAlbum(_ albumid: Int) -> Observable<Bool> {
+        let parameters = ["jsonrpc": "2.0",
+                          "method": "Playlist.Add",
+                          "params": ["playlistid": 0,
+                                     "item": ["albumid": albumid]],
+                          "id": "addAlbum"] as [String : Any]
+        
+        return dataPostRequest(kodi.jsonRpcUrl, parameters: parameters)
+            .map({ (response, data) -> (Bool) in
+                return true
+            })
+            .catchError({ (error) -> Observable<(Bool)> in
+                Observable.just(false)
+            })
+
+    }
+    
+    public func insertAlbum(_ albumid: Int, at: Int) -> Observable<Bool> {
+        let parameters = ["jsonrpc": "2.0",
+                          "method": "Playlist.Insert",
+                          "params": ["playlistid": 0,
+                                     "position": at,
+                                     "item": ["albumid": albumid]],
+                          "id": "insertAlbum"] as [String : Any]
+        
+        return dataPostRequest(kodi.jsonRpcUrl, parameters: parameters)
+            .map({ (response, data) -> (Bool) in
+                return true
+            })
+            .catchError({ (error) -> Observable<(Bool)> in
+                Observable.just(false)
+            })
+    }
 }

@@ -188,18 +188,23 @@ public protocol KodiProtocol {
     func getCurrentSong() -> Observable<KodiSong>
     func getSongsOnAlbum(_ albumid: Int) -> Observable<[KodiSong]>
     func searchSongs(_ search: String, limit: Int) -> Observable<[KodiSong]>
-
+    func playSong(_ songid: Int) -> Observable<Bool>
+    func addSongs(_ songids: [Int]) -> Observable<Bool>
+    func insertSongs(_ songids: [Int], at: Int) -> Observable<Bool>
+    
     func getRecentAlbums(count: Int) -> Observable<KodiAlbums>
     func getAlbums(start: Int, end: Int, sort: String, sortDirection: String) -> Observable<KodiAlbums>
     func getAlbums(artistid: Int) -> Observable<KodiAlbums>
     func getAlbums(genreid: Int) -> Observable<KodiAlbums>
-    func playAlbum(_ albumid: Int, shuffle: Bool) -> Observable<Bool>
     func searchAlbums(_ search: String, limit: Int) -> Observable<[KodiAlbum]>
+    func playAlbum(_ albumid: Int, shuffle: Bool) -> Observable<Bool>
+    func addAlbum(_ albumid: Int) -> Observable<Bool>
+    func insertAlbum(_ albumid: Int, at: Int) -> Observable<Bool>
 
     func getArtists(start: Int, end: Int, albumartistsonly: Bool) -> Observable<KodiArtists>
     func getArtistId(_ name: String) -> Observable<Int>
-    func playArtist(_ artistid: Int, shuffle: Bool) -> Observable<Bool>
     func searchArtists(_ search: String, limit: Int) -> Observable<[KodiArtist]>
+    func playArtist(_ artistid: Int, shuffle: Bool) -> Observable<Bool>
 
     func getGenres() -> Observable<KodiGenres>
     func playGenre(_ genreid: Int, shuffle: Bool) -> Observable<Bool>

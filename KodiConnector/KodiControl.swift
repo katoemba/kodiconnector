@@ -102,11 +102,109 @@ public class KodiControl: ControlProtocol {
     }
     
     public func add(_ song: Song, addDetails: AddDetails) -> Observable<(Song, AddResponse)> {
-        return Observable.empty()
+        guard let songId = Int(song.id) else {
+            return Observable.empty()
+        }
+        
+        switch addDetails.addMode {
+        case .replace:
+            return requestWithStatus(controlObservable: kodi.playSong(songId))
+                .map({ (playerStatus) -> (Song, AddResponse) in
+                    (song, AddResponse(addDetails, playerStatus))
+                })
+        case .addAtEnd:
+            return requestWithStatus(controlObservable: kodi.addSongs([songId]))
+                .map({ (playerStatus) -> (Song, AddResponse) in
+                    (song, AddResponse(addDetails, playerStatus))
+                })
+        case .addNext:
+            return KodiStatus(kodi: kodi).getStatus()
+                .map { (playerStatus) -> Int in
+                    playerStatus.playqueue.songIndex + 1
+                }
+                .flatMap { (position) -> Observable<PlayerStatus> in
+                    self.requestWithStatus(controlObservable: self.kodi.insertSongs([songId], at: position))
+                }
+                .map({ (playerStatus) -> (Song, AddResponse) in
+                    (song, AddResponse(addDetails, playerStatus))
+                })
+        case .addNextAndPlay:
+            return KodiStatus(kodi: kodi).getStatus()
+                .map { (playerStatus) -> Int in
+                    playerStatus.playqueue.songIndex + 1
+                }
+                .flatMap { (position) -> Observable<PlayerStatus> in
+                    self.requestWithStatus(controlObservable: self.kodi.insertSongs([songId], at: position))
+                }
+                .flatMap({ (playerStatus) -> Observable<PlayerStatus> in
+                    return self.skip()
+                })
+                .map({ (playerStatus) -> (Song, AddResponse) in
+                    (song, AddResponse(addDetails, playerStatus))
+                })
+        }
     }
     
     public func add(_ songs: [Song], addDetails: AddDetails) -> Observable<([Song], AddResponse)> {
-        return Observable.empty()
+        let songIds = songs.map { (song) -> Int in
+            Int(song.id)!
+        }
+        
+        switch addDetails.addMode {
+        case .replace:
+            return kodi.clearPlayqueue(0)
+                .flatMap({ (_) -> Observable<PlayerStatus> in
+                    KodiStatus(kodi: self.kodi).getStatus()
+                })
+                .map { (playerStatus) -> Int in
+                    playerStatus.playqueue.songIndex + 1
+                }
+                .flatMap { (position) -> Observable<PlayerStatus> in
+                    self.requestWithStatus(controlObservable: self.kodi.insertSongs(songIds, at: position))
+                }
+                .flatMap({ (playerStatus) -> Observable<Bool> in
+                    return self.kodi.goto(Int(addDetails.startWithSong))
+                })
+                .flatMap({ (_) -> Observable<PlayerStatus> in
+                    KodiStatus(kodi: self.kodi).getStatus()
+                })
+                .map({ (playerStatus) -> ([Song], AddResponse) in
+                    (songs, AddResponse(addDetails, playerStatus))
+                })
+        case .addAtEnd:
+            return requestWithStatus(controlObservable: kodi.addSongs(songIds))
+                .map({ (playerStatus) -> ([Song], AddResponse) in
+                    (songs, AddResponse(addDetails, playerStatus))
+                })
+        case .addNext:
+            return KodiStatus(kodi: kodi).getStatus()
+                .map { (playerStatus) -> Int in
+                    playerStatus.playqueue.songIndex + 1
+                }
+                .flatMap { (position) -> Observable<PlayerStatus> in
+                    self.requestWithStatus(controlObservable: self.kodi.insertSongs(songIds, at: position))
+                }
+                .map({ (playerStatus) -> ([Song], AddResponse) in
+                    (songs, AddResponse(addDetails, playerStatus))
+                })
+        case .addNextAndPlay:
+            return KodiStatus(kodi: kodi).getStatus()
+                .map { (playerStatus) -> Int in
+                    playerStatus.playqueue.songIndex + 1
+                }
+                .flatMap { (position) -> Observable<Int> in
+                    return self.kodi.insertSongs(songIds, at: position)
+                        .map({ (_) -> Int in
+                            position
+                        })
+                }
+                .flatMap({ (position) -> Observable<PlayerStatus> in
+                    return self.play(index: position)
+                })
+                .map({ (playerStatus) -> ([Song], AddResponse) in
+                    (songs, AddResponse(addDetails, playerStatus))
+                })
+        }
     }
     
     public func addToPlaylist(_ song: Song, playlist: Playlist) -> Observable<(Song, Playlist)> {
@@ -118,10 +216,46 @@ public class KodiControl: ControlProtocol {
             return Observable.empty()
         }
         
-        return requestWithStatus(controlObservable: kodi.playAlbum(albumId, shuffle: addDetails.shuffle))
-            .map({ (playerStatus) -> (Album, AddResponse) in
-                (album, AddResponse(addDetails, playerStatus))
-            })
+        switch addDetails.addMode {
+        case .replace:
+            return requestWithStatus(controlObservable: kodi.playAlbum(albumId, shuffle: addDetails.shuffle))
+                .map({ (playerStatus) -> (Album, AddResponse) in
+                    (album, AddResponse(addDetails, playerStatus))
+                })
+        case .addAtEnd:
+            return requestWithStatus(controlObservable: kodi.addAlbum(albumId))
+                .map({ (playerStatus) -> (Album, AddResponse) in
+                    (album, AddResponse(addDetails, playerStatus))
+                })
+        case .addNext:
+            return KodiStatus(kodi: kodi).getStatus()
+                .map { (playerStatus) -> Int in
+                    playerStatus.playqueue.songIndex + 1
+                }
+                .flatMap { (position) -> Observable<PlayerStatus> in
+                    self.requestWithStatus(controlObservable: self.kodi.insertAlbum(albumId, at: position))
+                }
+                .map({ (playerStatus) -> (Album, AddResponse) in
+                    (album, AddResponse(addDetails, playerStatus))
+                })
+        case .addNextAndPlay:
+            return KodiStatus(kodi: kodi).getStatus()
+                .map { (playerStatus) -> Int in
+                    playerStatus.playqueue.songIndex + 1
+                }
+                .flatMap { (position) -> Observable<Int> in
+                    return self.kodi.insertAlbum(albumId, at: position)
+                        .map({ (_) -> Int in
+                            position
+                        })
+                }
+                .flatMap({ (position) -> Observable<PlayerStatus> in
+                    return self.play(index: position)
+                })
+                .map({ (playerStatus) -> (Album, AddResponse) in
+                    (album, AddResponse(addDetails, playerStatus))
+                })
+        }
     }
     
     public func addToPlaylist(_ album: Album, playlist: Playlist) -> Observable<(Album, Playlist)> {

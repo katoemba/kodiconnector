@@ -74,4 +74,58 @@ extension KodiWrapper {
                                   sort: ["method": "playcount", "order": "descending"],
                                   limit: limit)
     }
+
+    public func playSong(_ songid: Int) -> Observable<Bool> {
+        let parameters = ["jsonrpc": "2.0",
+                          "method": "Player.Open",
+                          "params": ["item": ["songid": songid]],
+                          "id": "playSong"] as [String : Any]
+        
+        return dataPostRequest(kodi.jsonRpcUrl, parameters: parameters)
+            .map({ (response, data) -> (Bool) in
+                return true
+            })
+            .catchError({ (error) -> Observable<(Bool)> in
+                Observable.just(false)
+            })
+    }
+
+    public func addSongs(_ songids: [Int]) -> Observable<Bool> {
+        let songParam = songids.map { (songid) -> [String: Int] in
+            ["songid": songid]
+        }
+        let parameters = ["jsonrpc": "2.0",
+                          "method": "Playlist.Add",
+                          "params": ["playlistid": 0,
+                                     "item": songParam],
+                          "id": "addSongs"] as [String : Any]
+        
+        return dataPostRequest(kodi.jsonRpcUrl, parameters: parameters)
+            .map({ (response, data) -> (Bool) in
+                return true
+            })
+            .catchError({ (error) -> Observable<(Bool)> in
+                Observable.just(false)
+            })
+    }
+
+    public func insertSongs(_ songids: [Int], at: Int) -> Observable<Bool> {
+        let songParam = songids.map { (songid) -> [String: Int] in
+            ["songid": songid]
+        }
+        let parameters = ["jsonrpc": "2.0",
+                          "method": "Playlist.Insert",
+                          "params": ["playlistid": 0,
+                                     "position": at,
+                                     "item": songParam],
+                          "id": "insertSongs"] as [String : Any]
+        
+        return dataPostRequest(kodi.jsonRpcUrl, parameters: parameters)
+            .map({ (response, data) -> (Bool) in
+                return true
+            })
+            .catchError({ (error) -> Observable<(Bool)> in
+                Observable.just(false)
+            })
+    }
 }
