@@ -80,6 +80,30 @@ extension KodiWrapper {
             })
     }
 
+    public func getArtist(_ artistid: Int) -> Observable<KodiArtist> {
+        struct Root: Decodable {
+            var result: ArtistDetails
+        }
+        struct ArtistDetails: Decodable {
+            var artistdetails: KodiArtist
+        }
+        
+        let parameters = ["jsonrpc": "2.0",
+                          "method": "AudioLibrary.GetArtistDetails",
+                          "params": ["properties": KodiWrapper.artistProperties,
+                                     "artistid": artistid],
+                          "id": "getArtistDetails"] as [String : Any]
+        
+        return dataPostRequest(kodi.jsonRpcUrl, parameters: parameters)
+            .map({ (response, data) -> (KodiArtist) in
+                let root = try JSONDecoder().decode(Root.self, from: data)
+                return root.result.artistdetails
+            })
+            .catchError({ (error) -> Observable<KodiArtist> in
+                Observable.empty()
+            })
+    }
+
     public func searchArtists(_ search: String, limit: Int) -> Observable<[KodiArtist]> {
         return getArtistsWithFilter(["field": "artist", "operator": "contains", "value": search],
                                     sort: ["order": "ascending", "method": "artist", "ignorearticle": true],

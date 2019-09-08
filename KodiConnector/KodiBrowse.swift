@@ -155,11 +155,28 @@ public class KodiBrowse: BrowseProtocol {
     }
     
     public func artistFromSong(_ song: Song) -> Observable<Artist> {
-        return Observable.empty()
+        guard let songId = Int(song.id) else { return Observable.empty() }
+
+        return kodi.getSong(songId)
+            .flatMap({ (kodiSong) -> Observable<KodiArtist> in
+                guard kodiSong.artistid.count > 0 else { return Observable.empty() }
+                return self.kodi.getArtist(kodiSong.artistid[0])
+            })
+            .map({ (kodiArtist) -> Artist in
+                kodiArtist.artist
+            })
     }
     
     public func albumFromSong(_ song: Song) -> Observable<Album> {
-        return Observable.empty()
+        guard let songId = Int(song.id) else { return Observable.empty() }
+        
+        return kodi.getSong(songId)
+            .flatMap({ (kodiSong) -> Observable<KodiAlbum> in
+                self.kodi.getAlbum(kodiSong.albumid)
+            })
+            .map({ (kodiAlbum) -> Album in
+                kodiAlbum.album(kodiAddress: self.kodi.kodiAddress)
+            })
     }
     
     public func preprocessCoverURI(_ coverURI: CoverURI) -> Observable<CoverURI> {

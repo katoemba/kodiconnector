@@ -67,6 +67,9 @@ public struct KodiSong: Decodable {
     var track: Int
     var genre: [String]
     var thumbnail: String
+    var albumid: Int
+    var artistid: [Int]
+    var albumartistid: [Int]
     
     var uniqueId: Int {
         get {
@@ -186,6 +189,7 @@ public protocol KodiProtocol {
     func seek(_ percentage: Float) -> Observable<Bool>
     
     func getCurrentSong() -> Observable<KodiSong>
+    func getSong(_ songid: Int) -> Observable<KodiSong>
     func getSongsOnAlbum(_ albumid: Int) -> Observable<[KodiSong]>
     func searchSongs(_ search: String, limit: Int) -> Observable<[KodiSong]>
     func playSong(_ songid: Int) -> Observable<Bool>
@@ -196,6 +200,7 @@ public protocol KodiProtocol {
     func getAlbums(start: Int, end: Int, sort: String, sortDirection: String) -> Observable<KodiAlbums>
     func getAlbums(artistid: Int) -> Observable<KodiAlbums>
     func getAlbums(genreid: Int) -> Observable<KodiAlbums>
+    func getAlbum(_ albumid: Int) -> Observable<KodiAlbum>
     func searchAlbums(_ search: String, limit: Int) -> Observable<[KodiAlbum]>
     func playAlbum(_ albumid: Int, shuffle: Bool) -> Observable<Bool>
     func addAlbum(_ albumid: Int) -> Observable<Bool>
@@ -203,6 +208,7 @@ public protocol KodiProtocol {
 
     func getArtists(start: Int, end: Int, albumartistsonly: Bool) -> Observable<KodiArtists>
     func getArtistId(_ name: String) -> Observable<Int>
+    func getArtist(_ artistid: Int) -> Observable<KodiArtist>
     func searchArtists(_ search: String, limit: Int) -> Observable<[KodiArtist]>
     func playArtist(_ artistid: Int, shuffle: Bool) -> Observable<Bool>
 

@@ -10,7 +10,7 @@ import Foundation
 import RxSwift
 
 extension KodiWrapper {
-    public static let songProperties = ["album", "displayartist", "albumartist", "duration", "track", "thumbnail", "year", "genre", "file"]
+    public static let songProperties = ["album", "displayartist", "albumartist", "duration", "track", "thumbnail", "year", "genre", "file", "albumartistid", "albumid", "artistid"]
     
     public func getCurrentSong() -> Observable<KodiSong> {
         struct Root: Decodable {
@@ -29,6 +29,30 @@ extension KodiWrapper {
             .map({ (response, data) -> (KodiSong) in
                 let json = try JSONDecoder().decode(Root.self, from: data)
                 return json.result.item
+            })
+            .catchError({ (error) -> Observable<KodiSong> in
+                Observable.empty()
+            })
+    }
+    
+    public func getSong(_ songid: Int) -> Observable<KodiSong> {
+        struct Root: Decodable {
+            var result: SongDetails
+        }
+        struct SongDetails: Decodable {
+            var songdetails: KodiSong
+        }
+        
+        let parameters = ["jsonrpc": "2.0",
+                          "method": "AudioLibrary.GetSongDetails",
+                          "params": ["properties": KodiWrapper.songProperties,
+                                     "songid": songid],
+                          "id": "getSongDetails"] as [String : Any]
+        
+        return dataPostRequest(kodi.jsonRpcUrl, parameters: parameters)
+            .map({ (response, data) -> (KodiSong) in
+                let root = try JSONDecoder().decode(Root.self, from: data)
+                return root.result.songdetails
             })
             .catchError({ (error) -> Observable<KodiSong> in
                 Observable.empty()

@@ -56,6 +56,30 @@ extension KodiWrapper {
             })
     }
     
+    public func getAlbum(_ albumid: Int) -> Observable<KodiAlbum> {
+        struct Root: Decodable {
+            var result: AlbumDetails
+        }
+        struct AlbumDetails: Decodable {
+            var albumdetails: KodiAlbum
+        }
+        
+        let parameters = ["jsonrpc": "2.0",
+                          "method": "AudioLibrary.GetAlbumDetails",
+                          "params": ["properties": KodiWrapper.albumProperties,
+                                     "albumid": albumid],
+                          "id": "getAlbumDetails"] as [String : Any]
+        
+        return dataPostRequest(kodi.jsonRpcUrl, parameters: parameters)
+            .map({ (response, data) -> (KodiAlbum) in
+                let root = try JSONDecoder().decode(Root.self, from: data)
+                return root.result.albumdetails
+            })
+            .catchError({ (error) -> Observable<KodiAlbum> in
+                Observable.empty()
+            })
+    }
+    
     private func getAlbumsWithFilter(_ filter: [String: Any], sort: [String: Any], limit: Int = 0) -> Observable<KodiAlbums> {
         struct Root: Decodable {
             var result: KodiAlbums
