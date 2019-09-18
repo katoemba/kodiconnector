@@ -31,6 +31,9 @@ public enum NotificationType: String, Decodable {
     case playerOnPause = "Player.OnPause"
     case playerOnStop = "Player.OnStop"
     case playerOnSeek = "Player.OnSeek"
+    case playlistOnAdd = "Playlist.OnAdd"
+    case playlistOnRemove = "Playlist.OnRemove"
+    case playlistOnClear = "Playlist.OnClear"
 }
 public protocol Notification: Decodable {
     static var method: NotificationType { get }
@@ -93,6 +96,36 @@ public struct PlayerOnSeekData: Decodable {
     let player: Player
 }
 
+public struct PlaylistOnAdd: Notification {
+    public static let method = NotificationType.playlistOnAdd
+    let data: PlaylistOnAddData
+}
+public struct PlaylistOnAddData: Decodable {
+    let playlistid: Int
+    let position: Int
+    let item: PlaylistItem
+}
+public struct PlaylistItem: Decodable {
+    let id: Int
+    let type: String
+}
+
+public struct PlaylistOnRemove: Notification {
+    public static let method = NotificationType.playlistOnRemove
+    let data: PlaylistOnRemoveData
+}
+public struct PlaylistOnRemoveData: Decodable {
+    let playlistid: Int
+    let position: Int
+}
+
+public struct PlaylistOnClear: Notification {
+    public static let method = NotificationType.playlistOnClear
+    let data: PlaylistOnClearData
+}
+public struct PlaylistOnClearData: Decodable {
+    let playlistid: Int
+}
 
 struct ServerResponse: Decodable {
     let method: NotificationType
@@ -114,6 +147,12 @@ struct ServerResponse: Decodable {
             params = try values.decode(PlayerOnSeek.self, forKey: .params)
         case .applicationOnVolumeChanged:
             params = try values.decode(ApplicationOnVolumeChanged.self, forKey: .params)
+        case .playlistOnAdd:
+            params = try values.decode(PlaylistOnAdd.self, forKey: .params)
+        case .playlistOnRemove:
+            params = try values.decode(PlaylistOnRemove.self, forKey: .params)
+        case .playlistOnClear:
+            params = try values.decode(PlaylistOnClear.self, forKey: .params)
         }
     }
     
@@ -151,7 +190,8 @@ extension KodiWrapper {
                 return 0
             })
             .catchError({ (error) -> Observable<(Int)> in
-                Observable.just(0)
+                print(error)
+                return Observable.just(0)
             })
     }
     
@@ -171,7 +211,8 @@ extension KodiWrapper {
                 return json.result
             })
             .catchError({ (error) -> Observable<KodiPlayerProperties> in
-                Observable.empty()
+                print(error)
+                return Observable.empty()
             })
     }
 

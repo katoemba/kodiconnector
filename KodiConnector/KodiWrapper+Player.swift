@@ -25,7 +25,8 @@ extension KodiWrapper {
                 return json.result == "pong"
             })
             .catchError({ (error) -> Observable<Bool> in
-                Observable.just(false)
+                print(error)
+                return Observable.just(false)
             })
     }
     
@@ -57,7 +58,8 @@ extension KodiWrapper {
                 }
             })
             .catchError({ (error) -> Observable<(Int, Bool)> in
-                Observable.empty()
+                print(error)
+                return Observable.just((0, true))
             })
     }
     
@@ -71,7 +73,8 @@ extension KodiWrapper {
                 return true
             })
             .catchError({ (error) -> Observable<(Bool)> in
-                Observable.just(false)
+                print(error)
+                return Observable.just(false)
             })
     }
 
@@ -85,7 +88,8 @@ extension KodiWrapper {
                 return true
             })
             .catchError({ (error) -> Observable<(Bool)> in
-                Observable.just(false)
+                print(error)
+                return Observable.just(false)
             })
     }
 }

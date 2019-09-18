@@ -64,7 +64,7 @@ public class KodiPlayer: PlayerProtocol {
     }
 
     public var control : ControlProtocol {
-        return KodiControl(kodi: kodi)
+        return KodiControl(kodi: kodi, kodiStatus: kodiStatus)
     }
 
     public var browse : BrowseProtocol {

@@ -12,7 +12,7 @@ import RxSwift
 extension KodiWrapper {
     public static let songProperties = ["album", "displayartist", "albumartist", "duration", "track", "thumbnail", "year", "genre", "file", "albumartistid", "albumid", "artistid"]
     
-    public func getCurrentSong() -> Observable<KodiSong> {
+    public func getCurrentSong() -> Observable<KodiSong?> {
         struct Root: Decodable {
             var result: Result
         }
@@ -30,8 +30,9 @@ extension KodiWrapper {
                 let json = try JSONDecoder().decode(Root.self, from: data)
                 return json.result.item
             })
-            .catchError({ (error) -> Observable<KodiSong> in
-                Observable.empty()
+            .catchError({ (error) -> Observable<KodiSong?> in
+                print(error)
+                return Observable.just(nil)
             })
     }
     
@@ -55,7 +56,8 @@ extension KodiWrapper {
                 return root.result.songdetails
             })
             .catchError({ (error) -> Observable<KodiSong> in
-                Observable.empty()
+                print(error)
+                return Observable.empty()
             })
     }
     
@@ -84,7 +86,8 @@ extension KodiWrapper {
                 return json.result.songs
             })
             .catchError({ (error) -> Observable<[KodiSong]> in
-                Observable.just([])
+                print(error)
+                return Observable.just([])
             })
     }
 
@@ -110,7 +113,8 @@ extension KodiWrapper {
                 return true
             })
             .catchError({ (error) -> Observable<(Bool)> in
-                Observable.just(false)
+                print(error)
+                return Observable.just(false)
             })
     }
 
@@ -129,7 +133,8 @@ extension KodiWrapper {
                 return true
             })
             .catchError({ (error) -> Observable<(Bool)> in
-                Observable.just(false)
+                print(error)
+                return Observable.just(false)
             })
     }
 
@@ -149,7 +154,8 @@ extension KodiWrapper {
                 return true
             })
             .catchError({ (error) -> Observable<(Bool)> in
-                Observable.just(false)
+                print(error)
+                return Observable.just(false)
             })
     }
 }

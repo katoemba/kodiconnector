@@ -33,7 +33,8 @@ extension KodiWrapper {
                 return json.result.buildVersion
             })
             .catchError({ (error) -> Observable<String> in
-                Observable.just("Unknown")
+                print(error)
+                return Observable.just("Unknown")
             })
     }
 
@@ -60,7 +61,8 @@ extension KodiWrapper {
                 return "\(json.result.version.major).\(json.result.version.minor).\(json.result.version.patch)"
             })
             .catchError({ (error) -> Observable<String> in
-                Observable.just("0.0.0")
+                print(error)
+                return Observable.just("0.0.0")
             })
     }
 
@@ -96,7 +98,8 @@ extension KodiWrapper {
                 return (json.result.name, json.result.version.description, json.result.volume)
             })
             .catchError({ (error) -> Observable<(String, String, Int)> in
-                Observable.empty()
+                print(error)
+                return Observable.empty()
             })
     }
 }

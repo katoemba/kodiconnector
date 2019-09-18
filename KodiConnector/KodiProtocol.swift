@@ -68,8 +68,8 @@ public struct KodiSong: Decodable {
     var genre: [String]
     var thumbnail: String
     var albumid: Int
-    var artistid: [Int]
-    var albumartistid: [Int]
+    var artistid: [Int]?
+    var albumartistid: [Int]?
     
     var uniqueId: Int {
         get {
@@ -170,8 +170,12 @@ public protocol KodiProtocol {
     func getPlayerProperties() -> Observable<KodiPlayerProperties>
     func parseNotification(_ notification: Data) -> Notification?
     
-    func getPlayQueue(start: Int, end: Int) -> Observable<[KodiSong]>
-    func clearPlayqueue(_ playlistId: Int) -> Observable<Bool>
+    func getPropertiesForPlaylist(_ playlistId: Int) -> Observable<(Int, String)>
+    func getPlaylist(_ playlistId: Int, start: Int, end: Int) -> Observable<[KodiSong]>
+    func clearPlaylist(_ playlistId: Int) -> Observable<Bool>
+    func startPlaylist(_ playlistId: Int, at: Int) -> Observable<Bool>
+    func removeFromPlaylist(_ playlistId: Int, position: Int) -> Observable<Bool>
+    func swapItemsInPlaylist(_ playlistId: Int, position1: Int, position2: Int) -> Observable<Bool>
     
     func play() -> Observable<Bool>
     func pause() -> Observable<Bool>
@@ -188,7 +192,7 @@ public protocol KodiProtocol {
     func seek(_ seconds: UInt32) -> Observable<Bool>
     func seek(_ percentage: Float) -> Observable<Bool>
     
-    func getCurrentSong() -> Observable<KodiSong>
+    func getCurrentSong() -> Observable<KodiSong?>
     func getSong(_ songid: Int) -> Observable<KodiSong>
     func getSongsOnAlbum(_ albumid: Int) -> Observable<[KodiSong]>
     func searchSongs(_ search: String, limit: Int) -> Observable<[KodiSong]>

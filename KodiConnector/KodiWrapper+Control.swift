@@ -21,7 +21,8 @@ extension KodiWrapper {
                 return true
             })
             .catchError({ (error) -> Observable<(Bool)> in
-                Observable.just(false)
+                print(error)
+                return Observable.just(false)
             })
     }
 
@@ -36,7 +37,8 @@ extension KodiWrapper {
                 return true
             })
             .catchError({ (error) -> Observable<(Bool)> in
-                Observable.just(false)
+                print(error)
+                return Observable.just(false)
             })
     }
 
@@ -51,7 +53,8 @@ extension KodiWrapper {
                 return true
             })
             .catchError({ (error) -> Observable<(Bool)> in
-                Observable.just(false)
+                print(error)
+                return Observable.just(false)
             })
     }
 
@@ -66,7 +69,8 @@ extension KodiWrapper {
                 return true
             })
             .catchError({ (error) -> Observable<(Bool)> in
-                Observable.just(false)
+                print(error)
+                return Observable.just(false)
             })
     }
     
@@ -81,7 +85,8 @@ extension KodiWrapper {
                 return true
             })
             .catchError({ (error) -> Observable<(Bool)> in
-                Observable.just(false)
+                print(error)
+                return Observable.just(false)
             })
     }
     
@@ -96,7 +101,8 @@ extension KodiWrapper {
                 return true
             })
             .catchError({ (error) -> Observable<(Bool)> in
-                Observable.just(false)
+                print(error)
+                return Observable.just(false)
             })
     }
     
@@ -111,7 +117,8 @@ extension KodiWrapper {
                 return true
             })
             .catchError({ (error) -> Observable<(Bool)> in
-                Observable.just(false)
+                print(error)
+                return Observable.just(false)
             })
     }
     
@@ -126,7 +133,8 @@ extension KodiWrapper {
                 return true
             })
             .catchError({ (error) -> Observable<(Bool)> in
-                Observable.just(false)
+                print(error)
+                return Observable.just(false)
             })
     }
     
@@ -141,7 +149,8 @@ extension KodiWrapper {
                 return true
             })
             .catchError({ (error) -> Observable<(Bool)> in
-                Observable.just(false)
+                print(error)
+                return Observable.just(false)
             })
     }
     
@@ -156,7 +165,8 @@ extension KodiWrapper {
                 return true
             })
             .catchError({ (error) -> Observable<(Bool)> in
-                Observable.just(false)
+                print(error)
+                return Observable.just(false)
             })
     }
     
@@ -171,7 +181,8 @@ extension KodiWrapper {
                 return true
             })
             .catchError({ (error) -> Observable<(Bool)> in
-                Observable.just(false)
+                print(error)
+                return Observable.just(false)
             })
     }
 
@@ -186,7 +197,8 @@ extension KodiWrapper {
                 return true
             })
             .catchError({ (error) -> Observable<(Bool)> in
-                Observable.just(false)
+                print(error)
+                return Observable.just(false)
             })
     }
 
@@ -205,7 +217,8 @@ extension KodiWrapper {
                 return true
             })
             .catchError({ (error) -> Observable<(Bool)> in
-                Observable.just(false)
+                print(error)
+                return Observable.just(false)
             })
     }
 
@@ -220,7 +233,8 @@ extension KodiWrapper {
                 return true
             })
             .catchError({ (error) -> Observable<(Bool)> in
-                Observable.just(false)
+                print(error)
+                return Observable.just(false)
             })
     }
 }

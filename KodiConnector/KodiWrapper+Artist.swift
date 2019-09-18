@@ -31,7 +31,8 @@ extension KodiWrapper {
                 return root.result
             })
             .catchError({ (error) -> Observable<KodiArtists> in
-                Observable.empty()
+                print(error)
+                return Observable.empty()
             })
     }
 
@@ -58,7 +59,8 @@ extension KodiWrapper {
                 return root.result
             })
             .catchError({ (error) -> Observable<KodiArtists> in
-                Observable.just(KodiArtists(artists:[], limits: Limits(start: 0, end: 0, total: 0)))
+                print(error)
+                return Observable.just(KodiArtists(artists:[], limits: Limits(start: 0, end: 0, total: 0)))
             })
     }
     
@@ -76,7 +78,8 @@ extension KodiWrapper {
                 return artistid
             })
             .catchError({ (error) -> Observable<Int> in
-                Observable.empty()
+                print(error)
+                return Observable.empty()
             })
     }
 
@@ -100,7 +103,8 @@ extension KodiWrapper {
                 return root.result.artistdetails
             })
             .catchError({ (error) -> Observable<KodiArtist> in
-                Observable.empty()
+                print(error)
+                return Observable.empty()
             })
     }
 
@@ -125,7 +129,8 @@ extension KodiWrapper {
                 return true
             })
             .catchError({ (error) -> Observable<(Bool)> in
-                Observable.just(false)
+                print(error)
+                return Observable.just(false)
             })
     }
     

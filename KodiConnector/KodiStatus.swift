@@ -32,9 +32,12 @@ public class KodiStatus: StatusProtocol {
     
     private var socket: WebSocket
     
+    private let lastPlayqueueActivitySubject = ReplaySubject<Date>.create(bufferSize: 1)
+    
     public init(kodi: KodiProtocol,
                 scheduler: SchedulerType? = nil) {
         self.kodi = kodi
+        lastPlayqueueActivitySubject.onNext(Date(timeIntervalSince1970: 0))
         
         if scheduler == nil {
             self.elapsedTimeScheduler = SerialDispatchQueueScheduler.init(internalSerialQueueName: "com.katoemba.mpdconnector.elapsedtime")
@@ -81,6 +84,10 @@ public class KodiStatus: StatusProtocol {
         socket.disconnect()
     }
     
+    public func playqueueChanged() {
+        lastPlayqueueActivitySubject.onNext(Date())
+    }
+    
     public func kodiSettingsChanged(kodi: KodiProtocol) {
         guard kodi.kodiAddress.websocketPort != self.kodi.kodiAddress.websocketPort else { return }
         
@@ -96,7 +103,7 @@ public class KodiStatus: StatusProtocol {
     }
     
     public func playqueueSongs(start: Int, end: Int) -> Observable<[Song]> {
-        return kodi.getPlayQueue(start: start, end: end)
+        return kodi.getPlaylist(0, start: start, end: end)
             .map({ [weak self] (kodiSongs) -> [Song] in
                 guard let weakSelf = self else { return [] }
 
@@ -123,7 +130,7 @@ public class KodiStatus: StatusProtocol {
     
     public func getStatus() -> Observable<PlayerStatus> {
         let kodi = self.kodi
-        return kodi.getActivePlayers()
+        return Observable.just(1)
             .flatMap { (_) -> Observable<KodiPlayerProperties> in
                 return kodi.getPlayerProperties()
             }
@@ -143,10 +150,18 @@ public class KodiStatus: StatusProtocol {
             .flatMap({ (playerStatus) -> Observable<PlayerStatus> in
                 kodi.getCurrentSong()
                     .map({ [weak self] (song) -> PlayerStatus in
-                        guard let weakSelf = self else { return PlayerStatus() }
+                        guard let weakSelf = self, let song = song else { return playerStatus }
 
                         var updatedPlayerStatus = playerStatus
                         updatedPlayerStatus.currentSong = song.song(kodiAddress: weakSelf.kodi.kodiAddress)
+                        return updatedPlayerStatus
+                    })
+            })
+            .flatMap({ (playerStatus) -> Observable<PlayerStatus> in
+                kodi.getPropertiesForPlaylist(0)
+                    .map({ (size, _) -> PlayerStatus in
+                        var updatedPlayerStatus = playerStatus
+                        updatedPlayerStatus.playqueue.length = size
                         return updatedPlayerStatus
                     })
             })
@@ -188,9 +203,23 @@ public class KodiStatus: StatusProtocol {
     }
     
     private func processNotification(_ notification: Notification) {
-        Observable.just(1)
-            .withLatestFrom(playerStatusObservable)
-            .subscribe(onNext: { [weak self] (playerStatus) in
+        Observable.just(notification)
+            .withLatestFrom(lastPlayqueueActivitySubject) { (notification, lastActivityDate) -> (Notification, Date) in
+                (notification, lastActivityDate)
+            }
+            .filter({ (notification, lastActivityDate) -> Bool in
+                // Go ahead if the last playqueue change was more than a second ago
+                lastActivityDate.compare(Date(timeIntervalSinceNow: -1)) == .orderedAscending ||
+                // Or the notification is not for Add / Remove
+                (notification as? PlaylistOnRemove == nil && notification as? PlaylistOnAdd == nil)
+            })
+            .map({ (notification, lastActivityDate) -> Notification in
+                notification
+            })
+            .withLatestFrom(playerStatusObservable) { (notification, playerStatus) -> (Notification, PlayerStatus) in
+                (notification, playerStatus)
+            }
+            .subscribe(onNext: { [weak self] (notification, playerStatus) in
                 guard let weakSelf = self else { return }
                 
                 switch notification {
@@ -211,6 +240,15 @@ public class KodiStatus: StatusProtocol {
                                                                                              into: playerStatus))
                 case is ApplicationOnVolumeChanged:
                     weakSelf.playerStatus.onNext(weakSelf.processVolumeChangedNotification(notification: notification as! ApplicationOnVolumeChanged,
+                                                                                           into: playerStatus))
+                case is PlaylistOnAdd:
+                    weakSelf.playerStatus.onNext(weakSelf.processPlaylistAddNotification(notification: notification as! PlaylistOnAdd,
+                                                                                         into: playerStatus))
+                case is PlaylistOnRemove:
+                    weakSelf.playerStatus.onNext(weakSelf.processPlaylistRemoveNotification(notification: notification as! PlaylistOnRemove,
+                                                                                            into: playerStatus))
+                case is PlaylistOnClear:
+                    weakSelf.playerStatus.onNext(weakSelf.processPlaylistClearNotification(notification: notification as! PlaylistOnClear,
                                                                                            into: playerStatus))
                 default:
                     break
@@ -251,12 +289,20 @@ public class KodiStatus: StatusProtocol {
         playerStatus.playing.playPauseMode = .Playing
         playerStatus.lastUpdateTime = Date()
         if playerStatus.currentSong.id != "\(notification.data.item.id)" || isPlaying == true {
-            kodi.getCurrentSong()
-                .subscribe(onNext: { [weak self] (kodiSong) in
-                    guard let weakSelf = self else { return }
+            let positionObservable = kodi.getPlayerProperties()
+                .map { (playerProperties) -> Int in
+                    playerProperties.position
+                }
+            let currentSongObservable = kodi.getCurrentSong()
+                
+            Observable.combineLatest(positionObservable, currentSongObservable)
+                .subscribe(onNext: { [weak self] (position, kodiSong) in
+                    guard let weakSelf = self, let kodiSong = kodiSong else { return }
                     
                     var playerStatus = weakSelf.updateTimes(playerStatus: playerStatus, elapsedTime: 0, duration: kodiSong.duration)
                     playerStatus.currentSong = kodiSong.song(kodiAddress: weakSelf.kodi.kodiAddress)
+                    playerStatus.currentSong.position = position
+                    playerStatus.playqueue.songIndex = position
                     playerStatus.lastUpdateTime = Date()
                     weakSelf.playerStatus.onNext(playerStatus)
                 })
@@ -284,6 +330,42 @@ public class KodiStatus: StatusProtocol {
         var playerStatus = into
         
         playerStatus.volume = notification.data.muted ? 0.0 : notification.data.volume / 100.0
+        playerStatus.lastUpdateTime = Date()
+        
+        return playerStatus
+    }
+    
+    private func processPlaylistAddNotification(notification: PlaylistOnAdd, into: PlayerStatus) -> PlayerStatus {
+        guard notification.data.playlistid == 0 else { return into }
+
+        var playerStatus = into
+        
+        playerStatus.playqueue.version = playerStatus.playqueue.version + 1
+        playerStatus.playqueue.length = playerStatus.playqueue.length + 1
+        playerStatus.lastUpdateTime = Date()
+        
+        return playerStatus
+    }
+    
+    private func processPlaylistRemoveNotification(notification: PlaylistOnRemove, into: PlayerStatus) -> PlayerStatus {
+        guard notification.data.playlistid == 0 else { return into }
+        
+        var playerStatus = into
+        
+        playerStatus.playqueue.version = playerStatus.playqueue.version + 1
+        playerStatus.playqueue.length = max(0, playerStatus.playqueue.length - 1)
+        playerStatus.lastUpdateTime = Date()
+        
+        return playerStatus
+    }
+
+    private func processPlaylistClearNotification(notification: PlaylistOnClear, into: PlayerStatus) -> PlayerStatus {
+        guard notification.data.playlistid == 0 else { return into }
+
+        var playerStatus = into
+        
+        playerStatus.playqueue.version = playerStatus.playqueue.version + 1
+        playerStatus.playqueue.length = 0
         playerStatus.lastUpdateTime = Date()
         
         return playerStatus

@@ -26,7 +26,8 @@ extension KodiWrapper {
                 return root.result
             })
             .catchError({ (error) -> Observable<KodiGenres> in
-                Observable.empty()
+                print(error)
+                return Observable.empty()
             })
     }
     
@@ -42,7 +43,8 @@ extension KodiWrapper {
                 return true
             })
             .catchError({ (error) -> Observable<(Bool)> in
-                Observable.just(false)
+                print(error)
+                return Observable.just(false)
             })
     }
 

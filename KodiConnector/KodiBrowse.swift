@@ -159,8 +159,8 @@ public class KodiBrowse: BrowseProtocol {
 
         return kodi.getSong(songId)
             .flatMap({ (kodiSong) -> Observable<KodiArtist> in
-                guard kodiSong.artistid.count > 0 else { return Observable.empty() }
-                return self.kodi.getArtist(kodiSong.artistid[0])
+                guard let artistIds = kodiSong.artistid, artistIds.count > 0 else { return Observable.empty() }
+                return self.kodi.getArtist(artistIds[0])
             })
             .map({ (kodiArtist) -> Artist in
                 kodiArtist.artist

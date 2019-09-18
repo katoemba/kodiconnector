@@ -12,9 +12,11 @@ import RxSwift
 
 public class KodiControl: ControlProtocol {
     private var kodi: KodiProtocol
+    private var kodiStatus: KodiStatus
 
-    public init(kodi: KodiProtocol) {
+    public init(kodi: KodiProtocol, kodiStatus: KodiStatus) {
         self.kodi = kodi
+        self.kodiStatus = kodiStatus
     }
     
     public func play() -> Observable<PlayerStatus> {
@@ -152,18 +154,12 @@ public class KodiControl: ControlProtocol {
         
         switch addDetails.addMode {
         case .replace:
-            return kodi.clearPlayqueue(0)
-                .flatMap({ (_) -> Observable<PlayerStatus> in
-                    KodiStatus(kodi: self.kodi).getStatus()
-                })
-                .map { (playerStatus) -> Int in
-                    playerStatus.playqueue.songIndex + 1
+            return kodi.clearPlaylist(0)
+                .flatMap { (_) -> Observable<PlayerStatus> in
+                    self.requestWithStatus(controlObservable: self.kodi.insertSongs(songIds, at: 0))
                 }
-                .flatMap { (position) -> Observable<PlayerStatus> in
-                    self.requestWithStatus(controlObservable: self.kodi.insertSongs(songIds, at: position))
-                }
-                .flatMap({ (playerStatus) -> Observable<Bool> in
-                    return self.kodi.goto(Int(addDetails.startWithSong))
+                .flatMap({ (_) -> Observable<Bool> in
+                    self.kodi.startPlaylist(0, at: Int(addDetails.startWithSong))
                 })
                 .flatMap({ (_) -> Observable<PlayerStatus> in
                     KodiStatus(kodi: self.kodi).getStatus()
@@ -218,7 +214,13 @@ public class KodiControl: ControlProtocol {
         
         switch addDetails.addMode {
         case .replace:
-            return requestWithStatus(controlObservable: kodi.playAlbum(albumId, shuffle: addDetails.shuffle))
+            return kodi.playAlbum(albumId, shuffle: addDetails.shuffle)
+                .flatMap { (_) -> Observable<Bool> in
+                    self.kodi.startPlaylist(0, at: 0)
+                }
+                .flatMap({ (_) -> Observable<PlayerStatus> in
+                    KodiStatus(kodi: self.kodi).getStatus()
+                })
                 .map({ (playerStatus) -> (Album, AddResponse) in
                     (album, AddResponse(addDetails, playerStatus))
                 })
@@ -297,15 +299,41 @@ public class KodiControl: ControlProtocol {
     }
     
     public func moveSong(from: Int, to: Int) {
+        kodiStatus.playqueueChanged()
+        _ = kodi.getPlaylist(0, start: from, end: from+1)
+            .flatMap({ (kodiSongs) -> Observable<Int> in
+                guard kodiSongs.count > 0 else { return Observable.empty() }
+                return Observable.just(kodiSongs[0].uniqueId)
+            })
+            .flatMap({ (songId) -> Observable<Int> in
+                self.kodi.removeFromPlaylist(0, position: from)
+                    .map({ (_) -> Int in
+                        songId
+                    })
+            })
+            .flatMap({ (songId) -> Observable<Bool> in
+                self.kodi.insertSongs([songId], at: to)
+            })
+            .subscribe()
     }
     
     public func deleteSong(_ at: Int) {
+        _ = kodi.removeFromPlaylist(0, position: at)
+            .subscribe()
     }
     
     public func moveSong(playlist: Playlist, from: Int, to: Int) {
+        guard let playlistId = Int(playlist.id) else { return }
+
+        _ = kodi.swapItemsInPlaylist(playlistId, position1: from, position2: to)
+            .subscribe()
     }
     
     public func deleteSong(playlist: Playlist, at: Int) {
+        guard let playlistId = Int(playlist.id) else { return }
+        
+        _ = kodi.removeFromPlaylist(playlistId, position: at)
+            .subscribe()
     }
     
     public func savePlaylist(_ name: String) {
@@ -319,7 +347,7 @@ public class KodiControl: ControlProtocol {
                 playerProperties.playlistid
             })
             .flatMap({ (playlistId) -> Observable<Bool> in
-                kodi.clearPlayqueue(playlistId)
+                kodi.clearPlaylist(playlistId)
             })
             .subscribe()
     }

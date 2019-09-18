@@ -30,7 +30,8 @@ extension KodiWrapper {
                 return root.result
             })
             .catchError({ (error) -> Observable<KodiAlbums> in
-                Observable.just(KodiAlbums(albums:[], limits: Limits(start: 0, end: 0, total: 0)))
+                print(error)
+                return Observable.just(KodiAlbums(albums:[], limits: Limits(start: 0, end: 0, total: 0)))
             })
     }
     
@@ -52,7 +53,8 @@ extension KodiWrapper {
                 return root.result
             })
             .catchError({ (error) -> Observable<KodiAlbums> in
-                Observable.just(KodiAlbums(albums:[], limits: Limits(start: 0, end: 0, total: 0)))
+                print(error)
+                return Observable.just(KodiAlbums(albums:[], limits: Limits(start: 0, end: 0, total: 0)))
             })
     }
     
@@ -76,7 +78,8 @@ extension KodiWrapper {
                 return root.result.albumdetails
             })
             .catchError({ (error) -> Observable<KodiAlbum> in
-                Observable.empty()
+                print(error)
+                return Observable.empty()
             })
     }
     
@@ -102,7 +105,8 @@ extension KodiWrapper {
                 return root.result
             })
             .catchError({ (error) -> Observable<KodiAlbums> in
-                Observable.just(KodiAlbums(albums:[], limits: Limits(start: 0, end: 0, total: 0)))
+                print(error)
+                return Observable.just(KodiAlbums(albums:[], limits: Limits(start: 0, end: 0, total: 0)))
             })
     }
     
@@ -137,7 +141,8 @@ extension KodiWrapper {
                 return true
             })
             .catchError({ (error) -> Observable<(Bool)> in
-                Observable.just(false)
+                print(error)
+                return Observable.just(false)
             })
     }
     
@@ -153,7 +158,8 @@ extension KodiWrapper {
                 return true
             })
             .catchError({ (error) -> Observable<(Bool)> in
-                Observable.just(false)
+                print(error)
+                return Observable.just(false)
             })
 
     }
@@ -171,7 +177,8 @@ extension KodiWrapper {
                 return true
             })
             .catchError({ (error) -> Observable<(Bool)> in
-                Observable.just(false)
+                print(error)
+                return Observable.just(false)
             })
     }
 }
