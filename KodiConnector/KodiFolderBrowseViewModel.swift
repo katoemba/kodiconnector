@@ -86,7 +86,7 @@ public class KodiFolderBrowseViewModel: FolderBrowseViewModel {
             .map { [weak self] (kodiFiles) -> [FolderContent] in
                 guard let weakSelf = self else { return [] }
                 
-                return kodiFiles.files.compactMap({ (kodiFile) -> FolderContent? in
+                return kodiFiles.files.sorted().compactMap({ (kodiFile) -> FolderContent? in
                     kodiFile.folderContent(kodiAddress: weakSelf.kodi.kodiAddress)
                 })
             }

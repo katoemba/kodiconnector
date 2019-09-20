@@ -9,6 +9,7 @@
 import Foundation
 import ConnectorProtocol
 import RxSwift
+import RxSwiftExt
 
 public class KodiControl: ControlProtocol {
     private var kodi: KodiProtocol
@@ -148,8 +149,11 @@ public class KodiControl: ControlProtocol {
     }
     
     public func add(_ songs: [Song], addDetails: AddDetails) -> Observable<([Song], AddResponse)> {
-        let songIds = songs.map { (song) -> Int in
+        var songIds = songs.map { (song) -> Int in
             Int(song.id)!
+        }
+        if addDetails.shuffle {
+            songIds.shuffle()
         }
         
         switch addDetails.addMode {
@@ -291,11 +295,27 @@ public class KodiControl: ControlProtocol {
     }
     
     public func add(_ folder: Folder, addDetails: AddDetails) -> Observable<(Folder, AddResponse)> {
-        return Observable.empty()
+        return kodi.getDirectory(folder.path)
+            .map({ (kodiFiles) -> [Song] in
+                kodiFiles.files.sorted()
+                    .compactMap({ (kodiFile) -> Song? in
+                        if case let .song(song)? = kodiFile.folderContent(kodiAddress: self.kodi.kodiAddress) {
+                            return song
+                        }
+                        return nil
+                    })
+            })
+            .flatMap { (songs) -> Observable<(Folder, AddResponse)> in
+                return self.add(songs, addDetails: addDetails)
+                    .map({ (_, addResponse) -> (Folder, AddResponse) in
+                        (folder, addResponse)
+                    })
+        }
     }
     
     public func addRecursive(_ folder: Folder, addDetails: AddDetails) -> Observable<(Folder, AddResponse)> {
-        return Observable.empty()
+        // Add recursive is not supported for kodi.
+        return add(folder, addDetails: addDetails)
     }
     
     public func moveSong(from: Int, to: Int) {

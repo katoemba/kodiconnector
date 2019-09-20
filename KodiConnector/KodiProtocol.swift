@@ -149,6 +149,28 @@ public struct KodiFile: Decodable {
     var genre: [String]?
     var track: Int?
 }
+extension KodiFile: Comparable {
+    public static func < (lhs: KodiFile, rhs: KodiFile) -> Bool {
+        // First folder
+        if lhs.filetype == "directory" {
+            if rhs.filetype == "directory" {
+                return lhs.label < rhs.label
+            }
+            return true
+        }
+        if rhs.filetype == "directory" {
+            return false
+        }
+        
+        // Then song by track then label
+        if (lhs.track ?? 0) == (rhs.track ?? 0) {
+            return lhs.label < rhs.label
+        }
+        else {
+            return (lhs.track ?? 0) < (rhs.track ?? 0)
+        }
+    }
+}
 public struct KodiFiles: Decodable {
     var files: [KodiFile]
     var limits: Limits
