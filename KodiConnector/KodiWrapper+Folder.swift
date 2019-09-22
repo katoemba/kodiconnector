@@ -43,8 +43,7 @@ extension KodiWrapper {
                           "method": "Files.GetDirectory",
                           "params": ["directory": path,
                                      "media": "music",
-                                     "properties": KodiWrapper.fileProperties,
-                                     "sort": ["order": "ascending", "method": "label"]],
+                                     "properties": KodiWrapper.fileProperties],
                           "id": "getDirectory"] as [String : Any]
         
         return dataPostRequest(kodi.jsonRpcUrl, parameters: parameters)

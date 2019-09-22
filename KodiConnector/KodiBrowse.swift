@@ -42,13 +42,19 @@ public class KodiBrowse: BrowseProtocol {
     }
     
     public func songsInPlaylist(_ playlist: Playlist) -> Observable<[Song]> {
-//        return kodi.getSongsInPlaylist(playlist)
-//            .map({ (kodiSongs) -> [Song] in
-//                kodiSongs.map({ (kodiSong) -> Song in
-//                    kodiSong.song
-//                })
-//            })
-        return Observable.empty()
+        return kodi.getDirectory(playlist.id)
+            .map { [weak self] (kodiFiles) -> [Song] in
+                guard let weakSelf = self else { return [] }
+                
+                return kodiFiles.files.compactMap({ (kodiFile) -> Song? in
+                    let folderContent = kodiFile.folderContent(kodiAddress: weakSelf.kodi.kodiAddress)
+                    
+                    if case let .song(song)? = folderContent {
+                        return song
+                    }
+                    return nil
+                })
+            }
     }
     
     public func search(_ search: String, limit: Int, filter: [SourceType]) -> Observable<SearchResult> {
@@ -114,11 +120,11 @@ public class KodiBrowse: BrowseProtocol {
     }
     
     public func playlistBrowseViewModel() -> PlaylistBrowseViewModel {
-        return KodiPlaylistBrowseViewModel()
+        return KodiPlaylistBrowseViewModel(kodi: kodi)
     }
     
     public func playlistBrowseViewModel(_ playlists: [Playlist]) -> PlaylistBrowseViewModel {
-        return KodiPlaylistBrowseViewModel()
+        return KodiPlaylistBrowseViewModel(kodi: kodi)
     }
     
     public func songBrowseViewModel(_ songs: [Song]) -> SongBrowseViewModel {

@@ -22,7 +22,52 @@ public class KodiPlaylistBrowseViewModel: PlaylistBrowseViewModel {
         return playlistSubject.asObservable()
     }
     
+    private let kodi: KodiProtocol
+    private let bag = DisposeBag()
+    
+    public init(kodi: KodiProtocol) {
+        self.kodi = kodi
+    }
+    
     public func load() {
+        loadProgress.accept(.loading)
+        
+        let playlistsObservable = kodi.getDirectory("special://profile/playlists/music")
+            .map { (kodiFiles) -> [Playlist] in
+                return kodiFiles.files.compactMap({ (kodiFile) -> Playlist? in
+                    if kodiFile.filetype == "directory" {
+                        return Playlist(id: kodiFile.file, source: .Local, name: kodiFile.label, lastModified: Date())
+                    }
+                    else {
+                        return nil
+                    }
+                })
+            }
+            .share()
+        
+        playlistsObservable
+            .bind(to: playlistSubject)
+            .disposed(by: bag)
+        
+        playlistsObservable
+            .filter { (playlists) -> Bool in
+                playlists.count == 0
+            }
+            .map({ (_) -> LoadProgress in
+                .noDataFound
+            })
+            .bind(to: loadProgress)
+            .disposed(by: bag)
+        
+        playlistsObservable
+            .filter { (playlists) -> Bool in
+                playlists.count > 0
+            }
+            .map({ (_) -> LoadProgress in
+                .allDataLoaded
+            })
+            .bind(to: loadProgress)
+            .disposed(by: bag)
     }
     
     public func extend() {

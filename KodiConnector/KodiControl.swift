@@ -280,7 +280,22 @@ public class KodiControl: ControlProtocol {
     }
     
     public func add(_ playlist: Playlist, addDetails: AddDetails) -> Observable<(Playlist, AddResponse)> {
-        return Observable.empty()
+        return kodi.getDirectory(playlist.id)
+            .map({ (kodiFiles) -> [Song] in
+                kodiFiles.files
+                    .compactMap({ (kodiFile) -> Song? in
+                        if case let .song(song)? = kodiFile.folderContent(kodiAddress: self.kodi.kodiAddress) {
+                            return song
+                        }
+                        return nil
+                    })
+            })
+            .flatMap { (songs) -> Observable<(Playlist, AddResponse)> in
+                return self.add(songs, addDetails: addDetails)
+                    .map({ (_, addResponse) -> (Playlist, AddResponse) in
+                        (playlist, addResponse)
+                    })
+        }
     }
     
     public func add(_ genre: Genre, addDetails: AddDetails) -> Observable<(Genre, AddResponse)> {

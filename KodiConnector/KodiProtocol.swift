@@ -198,6 +198,8 @@ public protocol KodiProtocol {
     func startPlaylist(_ playlistId: Int, at: Int) -> Observable<Bool>
     func removeFromPlaylist(_ playlistId: Int, position: Int) -> Observable<Bool>
     func swapItemsInPlaylist(_ playlistId: Int, position1: Int, position2: Int) -> Observable<Bool>
+    func addPlaylist(_ playlist: String, shuffle: Bool) -> Observable<Bool>
+    func playPlaylist(_ playlist: String, shuffle: Bool) -> Observable<Bool>
     
     func play() -> Observable<Bool>
     func pause() -> Observable<Bool>

@@ -94,15 +94,19 @@ public class KodiSongBrowseViewModel: SongBrowseViewModel {
         var songsObservable : Observable<[Song]>
         switch filter {
         case let .playlist(playlist):
-            songsObservable = Observable.empty()
-//            songsObservable = kodi.getSongsInPlaylist(playlist)
-//                .map({ (kodiSongs) -> [Song] in
-//                    kodiSongs.map({ (kodiSong) -> Song in
-//                        kodiSong.song
-//                    })
-//                })
-//                .observeOn(MainScheduler.instance)
-//                .share(replay: 1)
+            songsObservable = kodi.getDirectory(playlist.id)
+                .map { [weak self] (kodiFiles) -> [Song] in
+                    guard let weakSelf = self else { return [] }
+                    
+                    return kodiFiles.files.compactMap({ (kodiFile) -> Song? in
+                        let folderContent = kodiFile.folderContent(kodiAddress: weakSelf.kodi.kodiAddress)
+                        
+                        if case let .song(song)? = folderContent {
+                            return song
+                        }
+                        return nil
+                    })
+            }
         case let .album(album):
             guard let albumId = Int(album.id) else {
                 songsObservable = Observable.empty()
