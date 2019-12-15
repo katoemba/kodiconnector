@@ -189,6 +189,10 @@ public class KodiBrowse: BrowseProtocol {
         return Observable.just(coverURI)
     }
     
+    public func imageDataFromCoverURI(_ coverURI: CoverURI) -> Observable<Data?> {
+        return Observable.just(nil)
+    }
+
     public func diagnostics(album: Album) -> Observable<String> {
         return Observable.empty()
     }
