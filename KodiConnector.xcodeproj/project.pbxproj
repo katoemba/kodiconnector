@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 51;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -86,6 +86,7 @@
 		C5A3F72C2234FA83004EA8EB /* KodiPlayerBrowser.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5A3F72B2234FA83004EA8EB /* KodiPlayerBrowser.swift */; };
 		C5A3F72D2234FA83004EA8EB /* KodiPlayerBrowser.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5A3F72B2234FA83004EA8EB /* KodiPlayerBrowser.swift */; };
 		C5A3F72E2234FA83004EA8EB /* KodiPlayerBrowser.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5A3F72B2234FA83004EA8EB /* KodiPlayerBrowser.swift */; };
+		C5C9593E23B65C65005A0C9B /* Starscream in Frameworks */ = {isa = PBXBuildFile; productRef = C5C9593D23B65C65005A0C9B /* Starscream */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -187,6 +188,7 @@
 			files = (
 				C5675F7C2236576E0038BB3E /* Pods_KodiConnector_iOS.framework in Frameworks */,
 				C5A296E521B43F9100D74771 /* ConnectorProtocol.framework in Frameworks */,
+				C5C9593E23B65C65005A0C9B /* Starscream in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -396,6 +398,9 @@
 			dependencies = (
 			);
 			name = KodiConnector_iOS;
+			packageProductDependencies = (
+				C5C9593D23B65C65005A0C9B /* Starscream */,
+			);
 			productName = KodiConnector;
 			productReference = C5A2969221B4381300D74771 /* KodiConnector.framework */;
 			productType = "com.apple.product-type.framework";
@@ -494,6 +499,9 @@
 				Base,
 			);
 			mainGroup = C5A2968821B4381300D74771;
+			packageReferences = (
+				C5C9593C23B65C65005A0C9B /* XCRemoteSwiftPackageReference "Starscream" */,
+			);
 			productRefGroup = C5A2969321B4381300D74771 /* Products */;
 			projectDirPath = "";
 			projectReferences = (
@@ -1189,6 +1197,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		C5C9593C23B65C65005A0C9B /* XCRemoteSwiftPackageReference "Starscream" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/daltoniam/Starscream.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.1.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		C5C9593D23B65C65005A0C9B /* Starscream */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C5C9593C23B65C65005A0C9B /* XCRemoteSwiftPackageReference "Starscream" */;
+			productName = Starscream;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = C5A2968921B4381300D74771 /* Project object */;
 }
