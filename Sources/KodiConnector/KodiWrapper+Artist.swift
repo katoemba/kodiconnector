@@ -70,7 +70,7 @@ extension KodiWrapper {
         }
 
         return getArtistsWithFilter(["field": "artist", "operator": "is", "value": name],
-                                    sort: ["order": "ascending", "method": "name", "ignorearticle": true])
+                                    sort: ["order": "ascending", "method": "artist", "ignorearticle": true])
             .map({ (kodiArtists) -> Int in
                 guard kodiArtists.artists.count > 0, let artistid = kodiArtists.artists[0].artistid else {
                     throw MyError.artistNotFound
