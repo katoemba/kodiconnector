@@ -42,23 +42,7 @@ public class KodiAlbumSectionBrowseViewModel: AlbumSectionBrowseViewModel {
         bag = DisposeBag()
         loadProgress.onNext(.loading)
 
-        var sortString = "title"
-        var sortDirection = "ascending"
-        switch sort {
-        case .artist:
-        sortString = "artist"
-        sortDirection = "ascending"
-        case .title:
-        sortString = "label"
-        sortDirection = "ascending"
-        case .year:
-        sortString = "year"
-        sortDirection = "ascending"
-        case .yearReverse:
-        sortString = "year"
-        sortDirection = "descending"
-        }
-        let albumObservable = kodi.getAlbums(start: 0, end: 100000, sort: sortString, sortDirection: sortDirection)
+        let albumObservable = kodi.getAlbums(start: 0, end: 100000, sort: sort.parameterArray)
             .map({ [weak self] (kodiAlbums) -> [Album] in
                 guard let weakSelf = self else { return [] }
                 

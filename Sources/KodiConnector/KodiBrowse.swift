@@ -34,7 +34,7 @@ public class KodiBrowse: BrowseProtocol {
         return kodi.getSongsOnAlbum(albumId)
             .map({ [weak self] (kodiSongs) -> [Song] in
                 guard let weakSelf = self else { return [] }
-
+                
                 return kodiSongs.map({ (kodiSong) -> Song in
                     kodiSong.song(kodiAddress: weakSelf.kodi.kodiAddress)
                 })
@@ -54,7 +54,7 @@ public class KodiBrowse: BrowseProtocol {
                     }
                     return nil
                 })
-            }
+        }
     }
     
     public func search(_ search: String, limit: Int, filter: [SourceType]) -> Observable<SearchResult> {
@@ -63,19 +63,19 @@ public class KodiBrowse: BrowseProtocol {
                 songs.map({ (kodiSong) -> Song in
                     kodiSong.song(kodiAddress: self.kodi.kodiAddress)
                 })
-            }
+        }
         let albumSearch = kodi.searchAlbums(search, limit: limit)
             .map { (albums) -> ([Album]) in
                 albums.map({ (kodiAlbum) -> Album in
                     kodiAlbum.album(kodiAddress: self.kodi.kodiAddress)
                 })
-            }
+        }
         let artistSearch = kodi.searchArtists(search, limit: limit)
             .map { (artists) -> ([Artist]) in
                 artists.map({ (kodiArtist) -> Artist in
                     kodiArtist.artist
                 })
-            }
+        }
         
         return Observable.combineLatest(songSearch, albumSearch, artistSearch)
             .map { (songs, albums,artists) -> SearchResult in
@@ -84,7 +84,7 @@ public class KodiBrowse: BrowseProtocol {
                 result.albums = albums
                 result.artists = artists
                 return result
-            }
+        }
     }
     
     public func albumSectionBrowseViewModel() -> AlbumSectionBrowseViewModel {
@@ -162,7 +162,7 @@ public class KodiBrowse: BrowseProtocol {
     
     public func artistFromSong(_ song: Song) -> Observable<Artist> {
         guard let songId = Int(song.id) else { return Observable.empty() }
-
+        
         return kodi.getSong(songId)
             .flatMap({ (kodiSong) -> Observable<KodiArtist> in
                 guard let artistIds = kodiSong.artistid, artistIds.count > 0 else { return Observable.empty() }
@@ -192,7 +192,7 @@ public class KodiBrowse: BrowseProtocol {
     public func imageDataFromCoverURI(_ coverURI: CoverURI) -> Observable<Data?> {
         return Observable.just(nil)
     }
-
+    
     public func diagnostics(album: Album) -> Observable<String> {
         return Observable.empty()
     }
@@ -218,7 +218,7 @@ extension KodiSong {
         if thumbnail != "" {
             song.coverURI = CoverURI.fullPathURI("\(kodiAddress.baseUrl)image/\(thumbnail.addingPercentEncoding(withAllowedCharacters: .letters)!)")
         }
-
+        
         return song
     }
 }
@@ -293,10 +293,30 @@ extension KodiFile {
             if thumbnail != "" {
                 song.coverURI = CoverURI.fullPathURI("\(kodiAddress.baseUrl)image/\(thumbnail.addingPercentEncoding(withAllowedCharacters: .letters)!)")
             }
-
+            
             return .song(song)
         }
         
         return nil
+    }
+}
+
+extension SortType {
+    var parameterArray: [String: Any] {
+        switch self {
+        case .artist:
+            return ["method": "artist",
+                    "order": "ascending",
+                    "ignorearticle": true]
+        case .title:
+            return ["method": "title",
+                    "order": "ascending"]
+        case .year:
+            return ["method": "year",
+                    "order": "ascending"]
+        case .yearReverse:
+            return ["method": "year",
+                    "order": "descending"]
+        }
     }
 }

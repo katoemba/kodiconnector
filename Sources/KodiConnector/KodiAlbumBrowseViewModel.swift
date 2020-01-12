@@ -29,7 +29,22 @@ public class KodiAlbumBrowseViewModel: AlbumBrowseViewModel {
     private let albums: [Album]
     
     
-    public private(set) var availableSortOptions = [SortType]()
+    public var availableSortOptions: [SortType] {
+        get {
+            if albums.count > 0 {
+                return []
+            }
+            else if filters.count > 0, case .artist(_) = filters[0] {
+                return [.title, .year, .yearReverse]
+            }
+            else if filters.count > 0, case .genre(_) = filters[0] {
+                return [.artist, .title, .year, .yearReverse]
+            }
+            else {
+                return [.artist, .title, .year, .yearReverse]
+            }
+        }
+    }
     
     private var kodi: KodiProtocol
     private var bag = DisposeBag()
@@ -81,7 +96,7 @@ public class KodiAlbumBrowseViewModel: AlbumBrowseViewModel {
         }
         
         loadProgress.accept(.loading)
-        kodi.getAlbums(genreid: genreId)
+        kodi.getAlbums(genreid: genreId, sort: sort.parameterArray)
             .do() { [weak self] in
                 self?.loadProgress.accept(.dataAvailable)
         }
@@ -92,7 +107,10 @@ public class KodiAlbumBrowseViewModel: AlbumBrowseViewModel {
                 kodiAlbum.album(kodiAddress: weakSelf.kodi.kodiAddress)
             })
         })
-            .bind(to: albumsSubject)
+            .subscribe(onNext: { [weak self] (albums) in
+                guard let weakSelf = self else { return }
+                weakSelf.albumsSubject.onNext(albums)
+            })
             .disposed(by: bag)
     }
     
@@ -109,7 +127,10 @@ public class KodiAlbumBrowseViewModel: AlbumBrowseViewModel {
                 kodiAlbum.album(kodiAddress: weakSelf.kodi.kodiAddress)
             })
         })
-            .bind(to: albumsSubject)
+            .subscribe(onNext: { [weak self] (albums) in
+                guard let weakSelf = self else { return }
+                weakSelf.albumsSubject.onNext(albums)
+            })
             .disposed(by: bag)
     }
     
@@ -125,8 +146,9 @@ public class KodiAlbumBrowseViewModel: AlbumBrowseViewModel {
         loadProgress.accept(.loading)
         let kodi = self.kodi
         artistIdObservable
-            .flatMapFirst { (artistId) -> Observable<KodiAlbums> in
-                kodi.getAlbums(artistid: artistId)
+            .flatMapFirst { [weak self] (artistId) -> Observable<KodiAlbums> in
+                guard let weakSelf = self else { return Observable.empty() }
+                return kodi.getAlbums(artistid: artistId, sort: weakSelf.sort.parameterArray)
         }
         .do() { [weak self] in
             self?.loadProgress.accept(.dataAvailable)
@@ -138,7 +160,10 @@ public class KodiAlbumBrowseViewModel: AlbumBrowseViewModel {
                 kodiAlbum.album(kodiAddress: weakSelf.kodi.kodiAddress)
             })
         })
-            .bind(to: albumsSubject)
+            .subscribe(onNext: { [weak self] (albums) in
+                guard let weakSelf = self else { return }
+                weakSelf.albumsSubject.onNext(albums)
+            })
             .disposed(by: bag)
     }
     
@@ -192,7 +217,7 @@ public class KodiAlbumBrowseViewModel: AlbumBrowseViewModel {
         let kodi = self.kodi
         let albumFetchObservable = loadNextBatchObservable
             .flatMap { limits -> Observable<KodiAlbums> in
-                return kodi.getAlbums(start: limits.end, end: limits.end + 100, sort: "label", sortDirection: "ascending")
+                return kodi.getAlbums(start: limits.end, end: limits.end + 100, sort: SortType.title.parameterArray)
         }
         .share()
         
@@ -228,7 +253,10 @@ public class KodiAlbumBrowseViewModel: AlbumBrowseViewModel {
             .scan([]) { inputAlbums, newAlbums in
                 inputAlbums + newAlbums
         }
-        .bind(to: albumsSubject)
+        .subscribe(onNext: { [weak self] (albums) in
+            guard let weakSelf = self else { return }
+            weakSelf.albumsSubject.onNext(albums)
+        })
         .disposed(by: bag)
         
         limitsSubject.onNext(Limits(start: 0, end: 0, total: 1000))

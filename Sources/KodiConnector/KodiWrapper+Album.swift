@@ -35,16 +35,17 @@ extension KodiWrapper {
             })
     }
     
-    public func getAlbums(start: Int, end: Int, sort: String, sortDirection: String) -> Observable<KodiAlbums> {
+    public func getAlbums(start: Int, end: Int, sort: [String: Any]) -> Observable<KodiAlbums> {
         struct Root: Decodable {
             var result: KodiAlbums
         }
 
+        let params = ["properties": KodiWrapper.albumProperties,
+                      "limits": ["start": start, "end": end],
+                      "sort": sort] as [String : Any]
         let parameters = ["jsonrpc": "2.0",
                           "method": "AudioLibrary.GetAlbums",
-                          "params": ["properties": KodiWrapper.albumProperties,
-                                     "limits": ["start": start, "end": end],
-                                     "sort": ["order": sortDirection, "method": sort, "ignorearticle": (sort == "artist" ? true : false)]],
+                          "params": params,
                           "id": "getAlbums"] as [String : Any]
         
         return dataPostRequest(kodi.jsonRpcUrl, parameters: parameters)
@@ -110,14 +111,14 @@ extension KodiWrapper {
             })
     }
     
-    public func getAlbums(artistid: Int) -> Observable<KodiAlbums> {
+    public func getAlbums(artistid: Int, sort: [String: Any]) -> Observable<KodiAlbums> {
         return getAlbumsWithFilter(["artistid": artistid],
-                                    sort: ["order": "ascending", "method": "year"])
+                                    sort: sort)
     }
 
-    public func getAlbums(genreid: Int) -> Observable<KodiAlbums> {
+    public func getAlbums(genreid: Int, sort: [String: Any]) -> Observable<KodiAlbums> {
         return getAlbumsWithFilter(["genreid": genreid],
-                                   sort: ["order": "ascending", "method": "artist", "ignorearticle": true])
+                                   sort: sort)
     }
     
     public func searchAlbums(_ search: String, limit: Int) -> Observable<[KodiAlbum]> {

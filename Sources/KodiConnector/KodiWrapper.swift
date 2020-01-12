@@ -12,7 +12,6 @@ import RxAlamofire
 import Alamofire
 
 public class KodiWrapper: KodiProtocol {
-    
     private let encoding = JSONEncoding.default
     private let headers = ["Content-Type": "application/json"]
     private(set) var kodi: KodiAddress
