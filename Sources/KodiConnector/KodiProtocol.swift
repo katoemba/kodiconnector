@@ -231,6 +231,7 @@ public protocol KodiProtocol {
     func getAlbums(genreid: Int) -> Observable<KodiAlbums>
     func getAlbum(_ albumid: Int) -> Observable<KodiAlbum>
     func searchAlbums(_ search: String, limit: Int) -> Observable<[KodiAlbum]>
+    func allAlbumIds() -> Observable<[Int]>
     func playAlbum(_ albumid: Int, shuffle: Bool) -> Observable<Bool>
     func addAlbum(_ albumid: Int) -> Observable<Bool>
     func insertAlbum(_ albumid: Int, at: Int) -> Observable<Bool>

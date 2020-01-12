@@ -113,7 +113,7 @@ extension KodiWrapper {
             var songid: Int
         }
         
-        var params = [:] as [String: Any]
+        let params = [:] as [String: Any]
         let parameters = ["jsonrpc": "2.0",
                           "method": "AudioLibrary.GetSongs",
                           "params": params,

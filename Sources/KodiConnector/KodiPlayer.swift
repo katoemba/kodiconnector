@@ -45,7 +45,7 @@ public class KodiPlayer: PlayerProtocol {
     }
     
     public var supportedFunctions: [Functions] {
-        return [.recentlyAddedAlbums, .twentyRandomSongs]
+        return [.recentlyAddedAlbums, .twentyRandomSongs, .randomAlbums]
     }
     
     public var connectionProperties: [String : Any] {

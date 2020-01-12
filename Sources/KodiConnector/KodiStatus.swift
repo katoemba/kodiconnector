@@ -184,7 +184,7 @@ public class KodiStatus: StatusProtocol {
         //websocketDidDisconnect
         socket.onDisconnect = { [weak self] (error: Error?) in
             self?.connectionStatus.onNext(.offline)
-            print("websocket is disconnected: \(error?.localizedDescription)")
+            print("websocket is disconnected: \(error?.localizedDescription ?? "")")
         }
         //websocketDidReceiveMessage
         socket.onText = { [weak self] (text: String) in
