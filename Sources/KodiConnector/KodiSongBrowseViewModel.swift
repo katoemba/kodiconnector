@@ -132,6 +132,22 @@ public class KodiSongBrowseViewModel: SongBrowseViewModel {
                 })
                 .observeOn(MainScheduler.instance)
                 .share(replay: 1)
+        case let .random(count):
+            // Getting all the songs is not the best approach, but adding a batch of songs (like 100) is even slower.
+            songsObservable = kodi.allSongIds()
+                .map({ (songIds) -> [Int] in
+                    var randomSongIds = [Int]()
+                    for _ in 0..<count {
+                        randomSongIds.append(songIds[Int.random(in: 0 ..< songIds.count)])
+                    }
+                    return randomSongIds
+                })
+                .map({ (songIds) -> [Song] in
+                    songIds.map { (songId) -> Song in
+                        Song(id: "\(songId)", source: .Local, location: "", title: "", album: "", artist: "", albumartist: "", composer: "", year: 0, genre: [], length: 0, quality: .init())
+                    }
+                })
+            break
         default:
             fatalError("MPDSongBrowseViewModel: load without filters not allowed")
         }
