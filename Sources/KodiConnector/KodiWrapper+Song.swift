@@ -101,6 +101,37 @@ extension KodiWrapper {
                                   sort: ["method": "playcount", "order": "descending"],
                                   limit: limit)
     }
+    
+    public func allSongIds() -> Observable<[Int]> {
+        struct Root: Decodable {
+            var result: Result
+        }
+        struct Result: Decodable {
+            var songs: [MinimalSong]
+        }
+        struct MinimalSong: Decodable {
+            var songid: Int
+        }
+        
+        var params = [:] as [String: Any]
+        let parameters = ["jsonrpc": "2.0",
+                          "method": "AudioLibrary.GetSongs",
+                          "params": params,
+                          "id": "getAllSongs"] as [String : Any]
+        
+        return dataPostRequest(kodi.jsonRpcUrl, parameters: parameters)
+            .map({ (response, data) -> ([Int]) in
+                let json = try JSONDecoder().decode(Root.self, from: data)
+                return json.result.songs
+                    .map { (song) -> Int in
+                        song.songid
+                    }
+            })
+            .catchError({ (error) -> Observable<[Int]> in
+                print(error)
+                return Observable.just([])
+            })
+    }
 
     public func playSong(_ songid: Int) -> Observable<Bool> {
         let parameters = ["jsonrpc": "2.0",

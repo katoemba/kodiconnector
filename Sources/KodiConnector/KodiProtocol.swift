@@ -219,6 +219,7 @@ public protocol KodiProtocol {
     func getCurrentSong() -> Observable<KodiSong?>
     func getSong(_ songid: Int) -> Observable<KodiSong>
     func getSongsOnAlbum(_ albumid: Int) -> Observable<[KodiSong]>
+    func allSongIds() -> Observable<[Int]>
     func searchSongs(_ search: String, limit: Int) -> Observable<[KodiSong]>
     func playSong(_ songid: Int) -> Observable<Bool>
     func addSongs(_ songids: [Int]) -> Observable<Bool>

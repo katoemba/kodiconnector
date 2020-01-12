@@ -160,7 +160,7 @@ public class KodiControl: ControlProtocol {
         case .replace:
             return kodi.clearPlaylist(0)
                 .flatMap { (_) -> Observable<PlayerStatus> in
-                    self.requestWithStatus(controlObservable: self.kodi.insertSongs(songIds, at: 0))
+                    self.requestWithStatus(controlObservable: self.kodi.addSongs(songIds))
                 }
                 .flatMap({ (_) -> Observable<Bool> in
                     self.kodi.startPlaylist(0, at: Int(addDetails.startWithSong))
