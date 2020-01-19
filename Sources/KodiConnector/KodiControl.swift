@@ -21,15 +21,20 @@ public class KodiControl: ControlProtocol {
     }
     
     public func play() -> Observable<PlayerStatus> {
-        return requestWithStatus(controlObservable: kodi.play())
+        return requestWithStatus(stream: .audio, controlObservable: kodi.play())
     }
     
     public func play(index: Int) -> Observable<PlayerStatus> {
-        return requestWithStatus(controlObservable: kodi.goto(index))
+        return requestWithStatus(stream: .audio, controlObservable: kodi.goto(index))
     }
     
     public func pause() -> Observable<PlayerStatus> {
-        return requestWithStatus(controlObservable: kodi.pause())
+        if kodi.stream == .audio {
+            return requestWithStatus(controlObservable: kodi.pause())
+        }
+        else {
+            return stop()
+        }
     }
     
     public func stop() -> Observable<PlayerStatus> {
@@ -48,24 +53,44 @@ public class KodiControl: ControlProtocol {
             })
     }
     
+    private func requestWithStatus(stream: KodiStream, controlObservable: Observable<Bool>) -> Observable<PlayerStatus> {
+        let kodi = self.kodi
+        return kodi.activateStream(stream)
+            .flatMapFirst { (_) -> Observable<Bool> in
+                controlObservable
+            }
+            .filter({ (success) -> Bool in
+                success == true
+            })
+            .flatMap({ (_) -> Observable<PlayerStatus> in
+                KodiStatus(kodi: kodi)
+                    .getStatus()
+            })
+    }
+    
     public func togglePlayPause() -> Observable<PlayerStatus> {
-        return requestWithStatus(controlObservable: kodi.togglePlayPause())
+        if kodi.stream == .audio {
+            return requestWithStatus(stream: .audio, controlObservable: kodi.togglePlayPause())
+        }
+        else {
+            return requestWithStatus(controlObservable: kodi.stop())
+        }
     }
     
     public func skip() -> Observable<PlayerStatus> {
-        return requestWithStatus(controlObservable: kodi.skip())
+        return requestWithStatus(stream: .audio, controlObservable: kodi.skip())
     }
     
     public func back() -> Observable<PlayerStatus> {
-        return requestWithStatus(controlObservable: kodi.back())
+        return requestWithStatus(stream: .audio, controlObservable: kodi.back())
     }
     
     public func setRandom(_ randomMode: RandomMode) -> Observable<PlayerStatus> {
-        return requestWithStatus(controlObservable: kodi.setShuffle(randomMode == .On))
+        return requestWithStatus(stream: .audio, controlObservable: kodi.setShuffle(randomMode == .On))
     }
     
     public func toggleRandom() -> Observable<PlayerStatus> {
-        return requestWithStatus(controlObservable: kodi.toggleShuffle())
+        return requestWithStatus(stream: .audio, controlObservable: kodi.toggleShuffle())
     }
     
     public func shufflePlayqueue() -> Observable<PlayerStatus> {
@@ -73,11 +98,11 @@ public class KodiControl: ControlProtocol {
     }
     
     public func setRepeat(_ repeatMode: RepeatMode) -> Observable<PlayerStatus> {
-        return requestWithStatus(controlObservable: kodi.setRepeat(repeatMode == .All ? "all" : (repeatMode == .Single ? "one" : "off")))
+        return requestWithStatus(stream: .audio, controlObservable: kodi.setRepeat(repeatMode == .All ? "all" : (repeatMode == .Single ? "one" : "off")))
     }
     
     public func toggleRepeat() -> Observable<PlayerStatus> {
-        return requestWithStatus(controlObservable: kodi.cycleRepeat())
+        return requestWithStatus(stream: .audio, controlObservable: kodi.cycleRepeat())
     }
     
     public func setConsume(_ consumeMode: ConsumeMode) {
@@ -93,15 +118,21 @@ public class KodiControl: ControlProtocol {
     }
     
     public func setSeek(seconds: UInt32) {
-        // Don't use a dispose bag, as that will immediately release the observable.
-        _ = kodi.seek(seconds)
-            .subscribe()
+        // Seek is only possible on the audio stream, not for radio
+        if kodi.stream == .audio {
+            // Don't use a dispose bag, as that will immediately release the observable.
+            _ = kodi.seek(seconds)
+                .subscribe()
+        }
     }
     
     public func setSeek(percentage: Float) {
-        // Don't use a dispose bag, as that will immediately release the observable.
-        _ = kodi.seek(percentage)
-            .subscribe()
+        // Seek is only possible on the audio stream, not for radio
+        if kodi.stream == .audio {
+            // Don't use a dispose bag, as that will immediately release the observable.
+            _ = kodi.seek(percentage)
+                .subscribe()
+        }
     }
     
     public func add(_ song: Song, addDetails: AddDetails) -> Observable<(Song, AddResponse)> {
@@ -111,12 +142,12 @@ public class KodiControl: ControlProtocol {
         
         switch addDetails.addMode {
         case .replace:
-            return requestWithStatus(controlObservable: kodi.playSong(songId))
+            return requestWithStatus(stream: .audio, controlObservable: kodi.playSong(songId))
                 .map({ (playerStatus) -> (Song, AddResponse) in
                     (song, AddResponse(addDetails, playerStatus))
                 })
         case .addAtEnd:
-            return requestWithStatus(controlObservable: kodi.addSongs([songId]))
+            return requestWithStatus(stream: .audio, controlObservable: kodi.addSongs([songId]))
                 .map({ (playerStatus) -> (Song, AddResponse) in
                     (song, AddResponse(addDetails, playerStatus))
                 })
@@ -126,7 +157,7 @@ public class KodiControl: ControlProtocol {
                     playerStatus.playqueue.songIndex + 1
                 }
                 .flatMap { (position) -> Observable<PlayerStatus> in
-                    self.requestWithStatus(controlObservable: self.kodi.insertSongs([songId], at: position))
+                    self.requestWithStatus(stream: .audio, controlObservable: self.kodi.insertSongs([songId], at: position))
                 }
                 .map({ (playerStatus) -> (Song, AddResponse) in
                     (song, AddResponse(addDetails, playerStatus))
@@ -137,7 +168,7 @@ public class KodiControl: ControlProtocol {
                     playerStatus.playqueue.songIndex + 1
                 }
                 .flatMap { (position) -> Observable<PlayerStatus> in
-                    self.requestWithStatus(controlObservable: self.kodi.insertSongs([songId], at: position))
+                    self.requestWithStatus(stream: .audio, controlObservable: self.kodi.insertSongs([songId], at: position))
                 }
                 .flatMap({ (playerStatus) -> Observable<PlayerStatus> in
                     return self.skip()
@@ -160,7 +191,7 @@ public class KodiControl: ControlProtocol {
         case .replace:
             return kodi.clearPlaylist(0)
                 .flatMap { (_) -> Observable<PlayerStatus> in
-                    self.requestWithStatus(controlObservable: self.kodi.addSongs(songIds))
+                    self.requestWithStatus(stream: .audio, controlObservable: self.kodi.addSongs(songIds))
                 }
                 .flatMap({ (_) -> Observable<Bool> in
                     self.kodi.startPlaylist(0, at: Int(addDetails.startWithSong))
@@ -172,7 +203,7 @@ public class KodiControl: ControlProtocol {
                     (songs, AddResponse(addDetails, playerStatus))
                 })
         case .addAtEnd:
-            return requestWithStatus(controlObservable: kodi.addSongs(songIds))
+            return requestWithStatus(stream: .audio, controlObservable: kodi.addSongs(songIds))
                 .map({ (playerStatus) -> ([Song], AddResponse) in
                     (songs, AddResponse(addDetails, playerStatus))
                 })
@@ -182,7 +213,7 @@ public class KodiControl: ControlProtocol {
                     playerStatus.playqueue.songIndex + 1
                 }
                 .flatMap { (position) -> Observable<PlayerStatus> in
-                    self.requestWithStatus(controlObservable: self.kodi.insertSongs(songIds, at: position))
+                    self.requestWithStatus(stream: .audio, controlObservable: self.kodi.insertSongs(songIds, at: position))
                 }
                 .map({ (playerStatus) -> ([Song], AddResponse) in
                     (songs, AddResponse(addDetails, playerStatus))
@@ -218,7 +249,10 @@ public class KodiControl: ControlProtocol {
         
         switch addDetails.addMode {
         case .replace:
-            return kodi.playAlbum(albumId, shuffle: addDetails.shuffle)
+            return kodi.activateStream(.audio)
+                .flatMapFirst { (_) -> Observable<Bool> in
+                    self.kodi.playAlbum(albumId, shuffle: addDetails.shuffle)
+                }
                 .flatMap { (_) -> Observable<Bool> in
                     self.kodi.startPlaylist(0, at: 0)
                 }
@@ -229,7 +263,7 @@ public class KodiControl: ControlProtocol {
                     (album, AddResponse(addDetails, playerStatus))
                 })
         case .addAtEnd:
-            return requestWithStatus(controlObservable: kodi.addAlbum(albumId))
+            return requestWithStatus(stream: .audio, controlObservable: kodi.addAlbum(albumId))
                 .map({ (playerStatus) -> (Album, AddResponse) in
                     (album, AddResponse(addDetails, playerStatus))
                 })
@@ -239,7 +273,7 @@ public class KodiControl: ControlProtocol {
                     playerStatus.playqueue.songIndex + 1
                 }
                 .flatMap { (position) -> Observable<PlayerStatus> in
-                    self.requestWithStatus(controlObservable: self.kodi.insertAlbum(albumId, at: position))
+                    self.requestWithStatus(stream: .audio, controlObservable: self.kodi.insertAlbum(albumId, at: position))
                 }
                 .map({ (playerStatus) -> (Album, AddResponse) in
                     (album, AddResponse(addDetails, playerStatus))
@@ -249,6 +283,14 @@ public class KodiControl: ControlProtocol {
                 .map { (playerStatus) -> Int in
                     playerStatus.playqueue.songIndex + 1
                 }
+                .flatMap({ [weak self] (position) -> Observable<Int> in
+                    guard let weakSelf = self else { return Observable.empty() }
+                    
+                    return weakSelf.kodi.activateStream(.audio)
+                        .map { (_) -> Int in
+                            position
+                        }
+                })
                 .flatMap { (position) -> Observable<Int> in
                     return self.kodi.insertAlbum(albumId, at: position)
                         .map({ (_) -> Int in
@@ -273,7 +315,7 @@ public class KodiControl: ControlProtocol {
             return Observable.empty()
         }
         
-        return requestWithStatus(controlObservable: kodi.playArtist(artistId, shuffle: addDetails.shuffle))
+        return requestWithStatus(stream: .audio, controlObservable: kodi.playArtist(artistId, shuffle: addDetails.shuffle))
             .map({ (playerStatus) -> (Artist, AddResponse) in
                 (artist, AddResponse(addDetails, playerStatus))
             })
@@ -303,7 +345,7 @@ public class KodiControl: ControlProtocol {
             return Observable.empty()
         }
         
-        return requestWithStatus(controlObservable: kodi.playGenre(genreId, shuffle: addDetails.shuffle))
+        return requestWithStatus(stream: .audio, controlObservable: kodi.playGenre(genreId, shuffle: addDetails.shuffle))
             .map({ (playerStatus) -> (Genre, AddResponse) in
                 (genre, AddResponse(addDetails, playerStatus))
             })
@@ -388,6 +430,15 @@ public class KodiControl: ControlProtocol {
     }
     
     public func playStation(_ station: Station) {
+        print("Playing station \(station.url)")
+        _ = kodi.activateStream(.video)
+            .delay(RxTimeInterval.milliseconds(1000), scheduler: MainScheduler.instance)
+            .flatMapFirst({ (_) -> Observable<Bool> in
+                self.kodi.play(station.url)
+            })
+            .subscribe(onNext: { (_) in
+                self.kodiStatus.lastStationUrl = station.url
+            })
     }
     
     public func setOutput(_ output: Output, enabled: Bool) {
