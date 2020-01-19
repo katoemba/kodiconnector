@@ -10,7 +10,8 @@ import Foundation
 import RxSwift
 
 public struct Item: Decodable {
-    let id: Int
+    let id: Int?
+    let title: String?
     let type: String
 }
 public struct Player: Decodable {

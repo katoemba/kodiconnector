@@ -212,7 +212,6 @@ extension KodiWrapper {
                           "id": "seek"] as [String : Any]
         
         return dataPostRequest(kodi.jsonRpcUrl, parameters: parameters)
-            .debug("seek")
             .map({ (response, json) -> (Bool) in
                 return true
             })
@@ -228,6 +227,22 @@ extension KodiWrapper {
                           "params": ["playerid": playerId, "value": max(min(percentage * 100.0, 100.0), 0.0)],
                           "id": "seek"] as [String : Any]
         
+        return dataPostRequest(kodi.jsonRpcUrl, parameters: parameters)
+            .map({ (response, json) -> (Bool) in
+                return true
+            })
+            .catchError({ (error) -> Observable<(Bool)> in
+                print(error)
+                return Observable.just(false)
+            })
+    }
+    
+    public func play(_ url: String) -> Observable<Bool> {
+        let parameters = ["jsonrpc": "2.0",
+                          "method": "Player.Open",
+                          "params": ["item": ["file": url]],
+                          "id": "playUrl"] as [String : Any]
+
         return dataPostRequest(kodi.jsonRpcUrl, parameters: parameters)
             .map({ (response, json) -> (Bool) in
                 return true

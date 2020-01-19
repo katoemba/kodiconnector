@@ -19,8 +19,10 @@ public class KodiWrapper: KodiProtocol {
         return kodi
     }
 
-    // For now, fix the playerId to 0 which is the music player (at least until v17 / v18).
     public var playerId = 0
+    public var stream: KodiStream {
+        return KodiStream(rawValue: playerId) ?? .audio
+    }
     
     private var bag = DisposeBag()
     
@@ -33,5 +35,11 @@ public class KodiWrapper: KodiProtocol {
     
     public init(kodi: KodiAddress) {
         self.kodi = kodi
+        self.getActivePlayers()
+            .subscribe(onNext: { [weak self] (playerId, isAudio) in
+                guard let weakSelf = self else { return }
+                weakSelf.playerId = playerId
+            })
+            .disposed(by: bag)
     }
 }

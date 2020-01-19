@@ -9,6 +9,11 @@
 import Foundation
 import RxSwift
 
+public enum KodiStream: Int {
+    case audio = 0
+    case video = 1
+}
+
 public struct KodiAddress {
     var ip: String
     var port: Int
@@ -59,7 +64,7 @@ public struct KodiSong: Decodable {
     var songid: Int?
     var file: String
     var label: String
-    var displayartist: String
+    var displayartist: String?
     var album: String
     var albumartist: [String]
     var duration: Int
@@ -178,6 +183,7 @@ public struct KodiFiles: Decodable {
 
 public protocol KodiProtocol {
     var kodiAddress: KodiAddress { get }
+    var stream: KodiStream { get }
     
     func getKodiVersion() -> Observable<String>
     func getApiVersion() -> Observable<String>
@@ -187,6 +193,8 @@ public protocol KodiProtocol {
     func getActivePlayers() -> Observable<(Int, Bool)>
     func scan() -> Observable<Bool>
     func clean() -> Observable<Bool>
+    func activateStream(_ stream: KodiStream) -> Observable<Bool>
+    func activateStream(_ streamId: Int) -> Observable<Bool>
 
     func getAudioPlaylist() -> Observable<Int>
     func getPlayerProperties() -> Observable<KodiPlayerProperties>
@@ -215,6 +223,7 @@ public protocol KodiProtocol {
     func setVolume(_ volume: Float) -> Observable<Bool>
     func seek(_ seconds: UInt32) -> Observable<Bool>
     func seek(_ percentage: Float) -> Observable<Bool>
+    func play(_ url: String) -> Observable<Bool>
     
     func getCurrentSong() -> Observable<KodiSong?>
     func getSong(_ songid: Int) -> Observable<KodiSong>

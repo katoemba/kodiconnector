@@ -63,6 +63,23 @@ extension KodiWrapper {
             })
     }
     
+    public func activateStream(_ stream: KodiStream) -> Observable<Bool> {
+        return activateStream(stream.rawValue)
+    }
+    
+    public func activateStream(_ streamId: Int) -> Observable<Bool> {
+        guard streamId != playerId else { return Observable.just(true) }
+        return stop()
+            .do(onNext: { [weak self] (_) in
+                guard let weakSelf = self else { return }
+                weakSelf.playerId = streamId
+            })
+            .flatMapFirst { [weak self] (_) -> Observable<Bool> in
+                guard let weakSelf = self else { return Observable.empty() }
+                return weakSelf.play()
+            }
+    }
+    
     public func scan() -> Observable<Bool> {
         let parameters = ["jsonrpc": "2.0",
                           "method": "AudioLibrary.Scan",

@@ -34,6 +34,8 @@ public class KodiStatus: StatusProtocol {
     
     private let lastPlayqueueActivitySubject = ReplaySubject<Date>.create(bufferSize: 1)
     
+    var lastStationUrl: String?
+    
     public init(kodi: KodiProtocol,
                 scheduler: SchedulerType? = nil) {
         self.kodi = kodi
@@ -288,7 +290,12 @@ public class KodiStatus: StatusProtocol {
         
         playerStatus.playing.playPauseMode = .Playing
         playerStatus.lastUpdateTime = Date()
-        if playerStatus.currentSong.id != "\(notification.data.item.id)" || isPlaying == true {
+        if kodi.stream == .video {
+            if let title = notification.data.item.title {
+                playerStatus.currentSong = Song(id: title, source: .Shoutcast, location: lastStationUrl ?? "", title: title, album: "", artist: "", albumartist: "", composer: "", year: 0, genre: [], length: 0, quality: QualityStatus())
+            }
+        }
+        else if playerStatus.currentSong.id != "\(notification.data.item.id ?? 0)" || isPlaying == true {
             let positionObservable = kodi.getPlayerProperties()
                 .map { (playerProperties) -> Int in
                     playerProperties.position
