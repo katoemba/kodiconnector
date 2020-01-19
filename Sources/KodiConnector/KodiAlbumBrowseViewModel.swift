@@ -41,7 +41,7 @@ public class KodiAlbumBrowseViewModel: AlbumBrowseViewModel {
                 return [.artist, .title, .year, .yearReverse]
             }
             else {
-                return [.artist, .title, .year, .yearReverse]
+                return []
             }
         }
     }
@@ -217,7 +217,7 @@ public class KodiAlbumBrowseViewModel: AlbumBrowseViewModel {
         let kodi = self.kodi
         let albumFetchObservable = loadNextBatchObservable
             .flatMap { limits -> Observable<KodiAlbums> in
-                return kodi.getAlbums(start: limits.end, end: limits.end + 100, sort: SortType.title.parameterArray)
+                return kodi.getAlbums(start: limits.end, end: limits.end + 100, sort: sort.parameterArray)
         }
         .share()
         
