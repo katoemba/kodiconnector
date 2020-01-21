@@ -29,6 +29,7 @@ public enum NotificationType: String, Decodable {
     case playerOnPropertyChanged = "Player.OnPropertyChanged"
     case applicationOnVolumeChanged = "Application.OnVolumeChanged"
     case playerOnPlay = "Player.OnPlay"
+    case playerOnResume = "Player.OnResume"
     case playerOnPause = "Player.OnPause"
     case playerOnStop = "Player.OnStop"
     case playerOnSeek = "Player.OnSeek"
@@ -139,6 +140,8 @@ struct ServerResponse: Decodable {
         case .playerOnPropertyChanged:
             params = try values.decode(PlayerOnPropertyChanged.self, forKey: .params)
         case .playerOnPlay:
+            params = try values.decode(PlayerOnPlay.self, forKey: .params)
+        case .playerOnResume:
             params = try values.decode(PlayerOnPlay.self, forKey: .params)
         case .playerOnPause:
             params = try values.decode(PlayerOnPause.self, forKey: .params)

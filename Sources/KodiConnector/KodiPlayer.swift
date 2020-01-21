@@ -9,6 +9,7 @@
 import Foundation
 import ConnectorProtocol
 import RxSwift
+import os
 
 public enum KodiConnectionProperties: String {
     case websocketPort = "Kodi.WebsocketPort"
@@ -54,6 +55,7 @@ public class KodiPlayer: PlayerProtocol {
             return [ConnectionProperties.Name.rawValue: name,
                     ConnectionProperties.Host.rawValue: host,
                     ConnectionProperties.Port.rawValue: port,
+                    KodiConnectionProperties.websocketPort.rawValue: websocketPort,
                     ConnectionProperties.Password.rawValue: password]
         }
     }
@@ -200,7 +202,8 @@ public class KodiPlayer: PlayerProtocol {
     ///
     /// - Returns: copy of the this player
     public func copy() -> PlayerProtocol {
-        return KodiPlayer.init(name: name, host: host, port: port, websocketPort: websocketPort, userDefaults: userDefaults, settingsChangedSubject: settingsChangedSubject)
+        //return KodiPlayer(name: name, host: host, port: port, websocketPort: websocketPort, userDefaults: userDefaults, settingsChangedSubject: settingsChangedSubject)
+        return KodiPlayer(connectionProperties: connectionProperties, userDefaults: userDefaults, settingsChangedSubject: settingsChangedSubject)
     }
     
     /// Upon activation, the status object starts monitoring the player status.

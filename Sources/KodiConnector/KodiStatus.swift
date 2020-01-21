@@ -11,6 +11,7 @@ import ConnectorProtocol
 import RxSwift
 import RxSwiftExt
 import Starscream
+import os
 
 public class KodiStatus: StatusProtocol {
     private var kodi: KodiProtocol

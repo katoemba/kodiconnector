@@ -65,7 +65,7 @@ public class KodiPlayerBrowser: PlayerBrowserProtocol {
     }
     
     public func playerForConnectionProperties(_ connectionProperties: [String : Any]) -> Observable<PlayerProtocol?> {
-        return Observable.empty()
+        return Observable.just(KodiPlayer(connectionProperties: connectionProperties, userDefaults: userDefaults))
     }
     
     public func persistPlayer(_ connectionProperties: [String : Any]) {
