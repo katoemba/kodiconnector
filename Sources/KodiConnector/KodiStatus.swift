@@ -43,7 +43,7 @@ public class KodiStatus: StatusProtocol {
         lastPlayqueueActivitySubject.onNext(Date(timeIntervalSince1970: 0))
         
         if scheduler == nil {
-            self.elapsedTimeScheduler = SerialDispatchQueueScheduler.init(internalSerialQueueName: "com.katoemba.mpdconnector.elapsedtime")
+            self.elapsedTimeScheduler = SerialDispatchQueueScheduler.init(internalSerialQueueName: "com.katoemba.kodiconnector.elapsedtime")
         }
         else {
             self.elapsedTimeScheduler = scheduler!
@@ -181,27 +181,24 @@ public class KodiStatus: StatusProtocol {
                     self?.playerStatus.onNext(playerStatus)
                 })
                 .disposed(by: weakSelf.bag)
-            
-            print("websocket is connected")
         }
         //websocketDidDisconnect
         socket.onDisconnect = { [weak self] (error: Error?) in
             self?.connectionStatus.onNext(.offline)
-            print("websocket is disconnected: \(error?.localizedDescription ?? "")")
         }
         //websocketDidReceiveMessage
         socket.onText = { [weak self] (text: String) in
             guard let weakSelf = self else { return }
 
-            print("got some text: \(text)")
+            //print("got some text: \(text)")
             if let data = text.data(using: .utf8), let notification = weakSelf.kodi.parseNotification(data) {
-                print("Notification: \(notification)")
+                //print("Notification: \(notification)")
                 weakSelf.processNotification(notification)
             }
         }
         //websocketDidReceiveData
         socket.onData = { (data: Data) in
-            print("got some data: \(data.count)")
+            //print("got some data: \(data.count)")
         }
     }
     

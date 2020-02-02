@@ -19,28 +19,29 @@ public enum KodiConnectionProperties: String {
 public class KodiPlayer: PlayerProtocol {
     private let userDefaults: UserDefaults
     private var kodi: KodiProtocol
+    public static let controllerType = "Kodi"
     public var controllerType: String {
-        return "Kodi"
+        KodiPlayer.controllerType
     }
     
     public var uniqueID: String {
         return "\(KodiPlayer.uniqueIDForPlayer(self))"
     }
-
+    
     public private(set) var name: String
     private var host: String
     private var port: Int
     private var websocketPort: Int
     private let settingsChangedSubject: PublishSubject<KodiPlayer>?
-
+    
     public var model: String {
-            return "Kodi"
+        return "Kodi"
     }
     
     public private(set) var discoverMode = DiscoverMode.automatic
     public private(set) var version: String
     public private(set) var connectionWarning = nil as String?
-
+    
     public var description: String {
         return "Kodi \(version)"
     }
@@ -51,24 +52,25 @@ public class KodiPlayer: PlayerProtocol {
     
     public var connectionProperties: [String : Any] {
         get {
-            let password = (self.loadSetting(id: ConnectionProperties.Password.rawValue) as? StringSetting)?.value ?? ""
-            return [ConnectionProperties.Name.rawValue: name,
-                    ConnectionProperties.Host.rawValue: host,
-                    ConnectionProperties.Port.rawValue: port,
+            let password = (self.loadSetting(id: ConnectionProperties.password.rawValue) as? StringSetting)?.value ?? ""
+            return [ConnectionProperties.controllerType.rawValue: KodiPlayer.controllerType,
+                    ConnectionProperties.name.rawValue: name,
+                    ConnectionProperties.host.rawValue: host,
+                    ConnectionProperties.port.rawValue: port,
                     KodiConnectionProperties.websocketPort.rawValue: websocketPort,
-                    ConnectionProperties.Password.rawValue: password]
+                    ConnectionProperties.password.rawValue: password]
         }
     }
-
+    
     private var kodiStatus: KodiStatus
     public  var status: StatusProtocol {
         return kodiStatus
     }
-
+    
     public var control : ControlProtocol {
         return KodiControl(kodi: kodi, kodiStatus: kodiStatus)
     }
-
+    
     public var browse : BrowseProtocol {
         return KodiBrowse(kodi: kodi)
     }
@@ -84,7 +86,7 @@ public class KodiPlayer: PlayerProtocol {
     // Test scheduler that can be passed down to mpdstatus, mpdcontrol, and mpdbrowse
     private var scheduler: SchedulerType?
     private let bag = DisposeBag()
-
+    
     /// Initialize a new player object
     ///
     /// - Parameters:
@@ -112,7 +114,7 @@ public class KodiPlayer: PlayerProtocol {
                 userDefaults: UserDefaults,
                 settingsChangedSubject: PublishSubject<KodiPlayer>? = nil) {
         let initialUniqueID = KodiPlayer.uniqueIDForPlayer(host: host, port: port)
-
+        
         self.name = name
         self.host = host
         self.port = port
@@ -129,16 +131,16 @@ public class KodiPlayer: PlayerProtocol {
         }
         self.websocketPort = websocketPortToUse
         self.kodi = kodi ?? KodiWrapper(kodi: KodiAddress(ip: host, port: port, websocketPort: websocketPortToUse))
-
+        
         if password != nil {
-            userDefaults.set(password, forKey: ConnectionProperties.Password.rawValue + "." + initialUniqueID)
+            userDefaults.set(password, forKey: ConnectionProperties.password.rawValue + "." + initialUniqueID)
         }
-
+        
         self.scheduler = scheduler
         self.connectionWarning = connectionWarning
         self.version = version
         self.discoverMode = discoverMode
-
+        
         kodiStatus = KodiStatus(kodi: self.kodi, scheduler: self.scheduler)
         
         self.settingsChangedSubject = settingsChangedSubject
@@ -151,7 +153,7 @@ public class KodiPlayer: PlayerProtocol {
                 guard let weakSelf = self else { return }
                 
                 let playerSpecificId = "\(KodiConnectionProperties.websocketPort.rawValue).\(weakSelf.uniqueID)"
-
+                
                 weakSelf.websocketPort = Int(userDefaults.string(forKey: playerSpecificId) ?? "") ?? 9090
                 weakSelf.kodi = KodiWrapper(kodi: KodiAddress(ip: weakSelf.kodi.kodiAddress.ip, port: weakSelf.kodi.kodiAddress.port, websocketPort: weakSelf.websocketPort))
                 weakSelf.kodiStatus.kodiSettingsChanged(kodi: weakSelf.kodi)
@@ -171,11 +173,12 @@ public class KodiPlayer: PlayerProtocol {
                             connectionProperties: [String: Any],
                             scheduler: SchedulerType? = nil,
                             version: String = "",
+                            discoverMode: DiscoverMode = .automatic,
                             userDefaults: UserDefaults,
                             settingsChangedSubject: PublishSubject<KodiPlayer>? = nil) {
-        guard let name = connectionProperties[ConnectionProperties.Name.rawValue] as? String,
-            let host = connectionProperties[ConnectionProperties.Host.rawValue] as? String,
-            let port = connectionProperties[ConnectionProperties.Port.rawValue] as? Int,
+        guard let name = connectionProperties[ConnectionProperties.name.rawValue] as? String,
+            let host = connectionProperties[ConnectionProperties.host.rawValue] as? String,
+            let port = connectionProperties[ConnectionProperties.port.rawValue] as? Int,
             let websocketPort = connectionProperties[KodiConnectionProperties.websocketPort.rawValue] as? Int else {
                 self.init(kodi: kodi,
                           name: "",
@@ -194,10 +197,11 @@ public class KodiPlayer: PlayerProtocol {
                   port: port,
                   websocketPort: websocketPort,
                   scheduler: scheduler,
+                  discoverMode: discoverMode,
                   userDefaults: userDefaults,
                   settingsChangedSubject: settingsChangedSubject)
     }
-
+    
     /// Create a copy of a player
     ///
     /// - Returns: copy of the this player
@@ -219,7 +223,10 @@ public class KodiPlayer: PlayerProtocol {
     /// Return the settings definition for a player.
     public var settings: [PlayerSettingGroup] {
         get {
-            return [PlayerSettingGroup(title: "Player Settings", description: "", settings:[loadSetting(id: KodiConnectionProperties.websocketPort.rawValue)!]),
+            return [PlayerSettingGroup(title: "Player Settings", description: "", settings:[ loadSetting(id: ConnectionProperties.name.rawValue)!,
+                                                                                             loadSetting(id: ConnectionProperties.host.rawValue)!,
+                                                                                             loadSetting(id: ConnectionProperties.port.rawValue)!,
+                                                                                             loadSetting(id: KodiConnectionProperties.websocketPort.rawValue)!]),
                     PlayerSettingGroup(title: "Music Library", description: "", settings:[ActionSetting.init(id: "KodiScan", description: "Rescan library", action: { [weak self] () -> Observable<String> in
                         guard let weakSelf = self else { return Observable.just("Scan not initiated") }
                         return weakSelf.kodi.scan()
@@ -233,7 +240,7 @@ public class KodiPlayer: PlayerProtocol {
                                                                                                 .map({ (result) -> String in
                                                                                                     result == true ? "Cleanup initiated" : "Cleanup not initiated"
                                                                                                 })
-                                                                                            })])]
+                                                                                          })])]
         }
     }
     
@@ -250,11 +257,11 @@ public class KodiPlayer: PlayerProtocol {
             
             settingsChangedSubject?.onNext(self)
         }
-        else if setting.id == ConnectionProperties.Password.rawValue {
+        else if setting.id == ConnectionProperties.password.rawValue {
             let stringSetting = setting as! StringSetting
             userDefaults.set(stringSetting.value, forKey: playerSpecificId)
             userDefaults.synchronize()
-
+            
             settingsChangedSubject?.onNext(self)
         }
     }
@@ -266,21 +273,42 @@ public class KodiPlayer: PlayerProtocol {
     public func loadSetting(id: String) -> PlayerSetting? {
         let playerSpecificId = id + "." + uniqueID
         
-        if id == KodiConnectionProperties.websocketPort.rawValue {
+        if id == ConnectionProperties.name.rawValue {
+            return StringSetting.init(id: id,
+                                      description: "Name",
+                                      placeholder: "",
+                                      value: name,
+                                      restriction: .readonly)
+        }
+        else if id == ConnectionProperties.host.rawValue {
+            return StringSetting.init(id: id,
+                                      description: "Host",
+                                      placeholder: "",
+                                      value: host,
+                                      restriction: .readonly)
+        }
+        else if id == ConnectionProperties.port.rawValue {
+            return StringSetting.init(id: id,
+                                      description: "Port",
+                                      placeholder: "",
+                                      value: "\(port)",
+                restriction: .readonly)
+        }
+        else if id == KodiConnectionProperties.websocketPort.rawValue {
             return StringSetting.init(id: id,
                                       description: "Websocket Port",
                                       placeholder: "Websocket Port",
                                       value: userDefaults.string(forKey: playerSpecificId) ?? "",
                                       restriction: .numeric)
         }
-        else if id == ConnectionProperties.Password.rawValue {
+        else if id == ConnectionProperties.password.rawValue {
             return StringSetting.init(id: id,
                                       description: "Password",
                                       placeholder: "Password",
                                       value: userDefaults.string(forKey: playerSpecificId) ?? "",
                                       restriction: .password)
         }
-
+        
         return nil
     }
     
