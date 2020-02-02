@@ -34,7 +34,8 @@ public class KodiPlaylistBrowseViewModel: PlaylistBrowseViewModel {
         
         let playlistsObservable = kodi.getDirectory("special://profile/playlists/music")
             .map { (kodiFiles) -> [Playlist] in
-                return kodiFiles.files.compactMap({ (kodiFile) -> Playlist? in
+                guard let files = kodiFiles.files else { return [] }
+                return files.compactMap({ (kodiFile) -> Playlist? in
                     if kodiFile.filetype == "directory" {
                         return Playlist(id: kodiFile.file, source: .Local, name: kodiFile.label, lastModified: Date())
                     }

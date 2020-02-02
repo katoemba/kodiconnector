@@ -324,7 +324,8 @@ public class KodiControl: ControlProtocol {
     public func add(_ playlist: Playlist, addDetails: AddDetails) -> Observable<(Playlist, AddResponse)> {
         return kodi.getDirectory(playlist.id)
             .map({ (kodiFiles) -> [Song] in
-                kodiFiles.files
+                guard let files = kodiFiles.files else { return [] }
+                return files
                     .compactMap({ (kodiFile) -> Song? in
                         if case let .song(song)? = kodiFile.folderContent(kodiAddress: self.kodi.kodiAddress) {
                             return song
@@ -354,7 +355,8 @@ public class KodiControl: ControlProtocol {
     public func add(_ folder: Folder, addDetails: AddDetails) -> Observable<(Folder, AddResponse)> {
         return kodi.getDirectory(folder.path)
             .map({ (kodiFiles) -> [Song] in
-                kodiFiles.files.sorted()
+                guard let files = kodiFiles.files else { return [] }
+                return files.sorted()
                     .compactMap({ (kodiFile) -> Song? in
                         if case let .song(song)? = kodiFile.folderContent(kodiAddress: self.kodi.kodiAddress) {
                             return song

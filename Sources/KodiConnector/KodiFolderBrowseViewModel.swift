@@ -85,8 +85,9 @@ public class KodiFolderBrowseViewModel: FolderBrowseViewModel {
         let foldersObservable = kodi.getDirectory(parentFolder.path)
             .map { [weak self] (kodiFiles) -> [FolderContent] in
                 guard let weakSelf = self else { return [] }
-                
-                return kodiFiles.files.sorted().compactMap({ (kodiFile) -> FolderContent? in
+                guard let files = kodiFiles.files else { return [] }
+
+                return files.sorted().compactMap({ (kodiFile) -> FolderContent? in
                     kodiFile.folderContent(kodiAddress: weakSelf.kodi.kodiAddress)
                 })
             }

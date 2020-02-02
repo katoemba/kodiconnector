@@ -45,8 +45,9 @@ public class KodiBrowse: BrowseProtocol {
         return kodi.getDirectory(playlist.id)
             .map { [weak self] (kodiFiles) -> [Song] in
                 guard let weakSelf = self else { return [] }
-                
-                return kodiFiles.files.compactMap({ (kodiFile) -> Song? in
+                guard let files = kodiFiles.files else { return [] }
+
+                return files.compactMap({ (kodiFile) -> Song? in
                     let folderContent = kodiFile.folderContent(kodiAddress: weakSelf.kodi.kodiAddress)
                     
                     if case let .song(song)? = folderContent {

@@ -177,7 +177,7 @@ extension KodiFile: Comparable {
     }
 }
 public struct KodiFiles: Decodable {
-    var files: [KodiFile]
+    var files: [KodiFile]?
     var limits: Limits
 }
 
