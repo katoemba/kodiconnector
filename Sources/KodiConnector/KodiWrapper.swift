@@ -31,6 +31,13 @@ public class KodiWrapper: KodiProtocol {
     }
     public func dataPostRequest(_ url: URL, parameters: [String: Any]) -> Observable<(HTTPURLResponse, Data)> {
         return RxAlamofire.requestData(.post, url, parameters: parameters, encoding: encoding, headers: headers)
+            .flatMapFirst { (arg) -> Observable<(HTTPURLResponse, Data)> in
+                let (response, data) = arg
+                guard response.statusCode == 200, (response.mimeType ?? "").contains("json") else {
+                    return Observable.empty()
+                }
+                return Observable.just((response, data))
+            }
     }
     
     public init(kodi: KodiAddress) {
