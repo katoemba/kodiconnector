@@ -10,11 +10,11 @@ import Foundation
 import RxSwift
 
 extension KodiWrapper {
-    public func pong() -> Observable<Bool> {
+    public func ping() -> Observable<Bool> {
         struct Root: Decodable {
             var result: String
         }
-        
+
         let parameters = ["jsonrpc": "2.0",
                           "method": "JSONRPC.Ping",
                           "id": "ping"] as [String : Any]

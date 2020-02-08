@@ -189,7 +189,7 @@ public protocol KodiProtocol {
     func getApiVersion() -> Observable<String>
     func getApplicationProperties() -> Observable<(String, String, Int)>
     
-    func pong() -> Observable<Bool>
+    func ping() -> Observable<Bool>
     func getActivePlayers() -> Observable<(Int, Bool)>
     func scan() -> Observable<Bool>
     func clean() -> Observable<Bool>
