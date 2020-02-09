@@ -213,7 +213,7 @@ extension KodiSong {
             year: year,
             genre: genre,
             length: duration,
-            quality: QualityStatus(samplerate: "", encoding: "", channels: "", filetype: ""),
+            quality: QualityStatus(),
             position: 0,
             track: track)
         if thumbnail != "" {
@@ -288,7 +288,7 @@ extension KodiFile {
                 year: year ?? 0,
                 genre: genre ?? [],
                 length: duration ?? 0,
-                quality: QualityStatus(samplerate: "", encoding: "", channels: "", filetype: ""),
+                quality: QualityStatus(),
                 position: 0,
                 track: track ?? 0)
             if thumbnail != "" {
