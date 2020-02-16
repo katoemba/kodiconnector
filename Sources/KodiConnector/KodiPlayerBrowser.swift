@@ -42,7 +42,7 @@ public class KodiPlayerBrowser: PlayerBrowserProtocol {
             .flatMap { (service) -> Observable<PlayerProtocol> in
                 guard let hostName = service.hostName else { return Observable.empty() }
                 
-                let kodi = KodiWrapper(kodi: KodiAddress(ip: hostName, port: service.port, websocketPort: 9090))
+                let kodi = KodiWrapper(kodi: KodiAddress(ip: hostName, port: service.port, websocketPort: 9090), getPlayerId: false)
                 return kodi.ping()
                     .filter({ (pingSuccessful) -> Bool in
                         pingSuccessful == true
@@ -98,7 +98,7 @@ public class KodiPlayerBrowser: PlayerBrowserProtocol {
             let websocketPort = connectionProperties[KodiConnectionProperties.websocketPort.rawValue] as? Int
             else { return Observable.just(nil) }
         
-        let kodi = KodiWrapper(kodi: KodiAddress(ip: hostName, port: port, websocketPort: websocketPort))
+        let kodi = KodiWrapper(kodi: KodiAddress(ip: hostName, port: port, websocketPort: websocketPort), getPlayerId: false)
         return kodi.ping()
             .flatMap({ [weak self] (success) -> Observable<PlayerProtocol?> in
                 guard let weakSelf = self else { return Observable.just(nil) }

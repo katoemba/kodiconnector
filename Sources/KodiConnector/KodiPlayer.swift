@@ -130,7 +130,7 @@ public class KodiPlayer: PlayerProtocol {
             websocketPortToUse = Int(userDefaults.string(forKey: playerSpecificId) ?? "") ?? 9090
         }
         self.websocketPort = websocketPortToUse
-        self.kodi = kodi ?? KodiWrapper(kodi: KodiAddress(ip: host, port: port, websocketPort: websocketPortToUse))
+        self.kodi = kodi ?? KodiWrapper(kodi: KodiAddress(ip: host, port: port, websocketPort: websocketPortToUse), getPlayerId: true)
         
         if password != nil {
             userDefaults.set(password, forKey: ConnectionProperties.password.rawValue + "." + initialUniqueID)
@@ -155,7 +155,7 @@ public class KodiPlayer: PlayerProtocol {
                 let playerSpecificId = "\(KodiConnectionProperties.websocketPort.rawValue).\(weakSelf.uniqueID)"
                 
                 weakSelf.websocketPort = Int(userDefaults.string(forKey: playerSpecificId) ?? "") ?? 9090
-                weakSelf.kodi = KodiWrapper(kodi: KodiAddress(ip: weakSelf.kodi.kodiAddress.ip, port: weakSelf.kodi.kodiAddress.port, websocketPort: weakSelf.websocketPort))
+                weakSelf.kodi = KodiWrapper(kodi: KodiAddress(ip: weakSelf.kodi.kodiAddress.ip, port: weakSelf.kodi.kodiAddress.port, websocketPort: weakSelf.websocketPort), getPlayerId: true)
                 weakSelf.kodiStatus.kodiSettingsChanged(kodi: weakSelf.kodi)
             })
             .disposed(by: bag)

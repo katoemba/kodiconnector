@@ -40,13 +40,15 @@ public class KodiWrapper: KodiProtocol {
             }
     }
     
-    public init(kodi: KodiAddress) {
+    public init(kodi: KodiAddress, getPlayerId: Bool) {
         self.kodi = kodi
-        self.getActivePlayers()
-            .subscribe(onNext: { [weak self] (playerId, isAudio) in
-                guard let weakSelf = self else { return }
-                weakSelf.playerId = playerId
-            })
-            .disposed(by: bag)
+        if getPlayerId {
+            self.getActivePlayers()
+                .subscribe(onNext: { [weak self] (playerId, isAudio) in
+                    guard let weakSelf = self else { return }
+                    weakSelf.playerId = playerId
+                })
+                .disposed(by: bag)
+        }
     }
 }
