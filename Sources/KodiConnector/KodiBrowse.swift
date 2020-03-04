@@ -216,8 +216,8 @@ extension KodiSong {
             quality: QualityStatus(),
             position: 0,
             track: track)
-        if thumbnail != "" {
-            song.coverURI = CoverURI.fullPathURI("\(kodiAddress.baseUrl)image/\(thumbnail.addingPercentEncoding(withAllowedCharacters: .letters)!)")
+        if thumbnail != "", let url = kodiAddress.baseUrl {
+            song.coverURI = CoverURI.fullPathURI("\(url)image/\(thumbnail.addingPercentEncoding(withAllowedCharacters: .letters)!)")
         }
         
         return song
@@ -236,10 +236,10 @@ extension KodiAlbum {
             length: 0,
             sortTitle: label,
             sortArtist: displayartist)
-        if thumbnail != "" {
-            album.coverURI = CoverURI.fullPathURI("\(kodiAddress.baseUrl)image/\(thumbnail.addingPercentEncoding(withAllowedCharacters: .letters)!)")
+        if thumbnail != "", let url = kodiAddress.baseUrl {
+            album.coverURI = CoverURI.fullPathURI("\(url)image/\(thumbnail.addingPercentEncoding(withAllowedCharacters: .letters)!)")
         }
-        
+
         return album
     }
 }
@@ -291,10 +291,10 @@ extension KodiFile {
                 quality: QualityStatus(),
                 position: 0,
                 track: track ?? 0)
-            if thumbnail != "" {
-                song.coverURI = CoverURI.fullPathURI("\(kodiAddress.baseUrl)image/\(thumbnail.addingPercentEncoding(withAllowedCharacters: .letters)!)")
+            if thumbnail != "", let url = kodiAddress.baseUrl {
+                song.coverURI = CoverURI.fullPathURI("\(url)image/\(thumbnail.addingPercentEncoding(withAllowedCharacters: .letters)!)")
             }
-            
+
             return .song(song)
         }
         

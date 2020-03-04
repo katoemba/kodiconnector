@@ -29,7 +29,8 @@ public class KodiWrapper: KodiProtocol {
     private func jsonPostRequest(_ url: URL, parameters: [String: Any]) -> Observable<(HTTPURLResponse, Any)> {
         return RxAlamofire.requestJSON(.post, url, parameters: parameters, encoding: encoding, headers: headers)
     }
-    public func dataPostRequest(_ url: URL, parameters: [String: Any]) -> Observable<(HTTPURLResponse, Data)> {
+    public func dataPostRequest(_ url: URL?, parameters: [String: Any]) -> Observable<(HTTPURLResponse, Data)> {
+        guard let url = url else { return Observable.empty() }
         return RxAlamofire.requestData(.post, url, parameters: parameters, encoding: encoding, headers: headers)
             .flatMapFirst { (arg) -> Observable<(HTTPURLResponse, Data)> in
                 let (response, data) = arg

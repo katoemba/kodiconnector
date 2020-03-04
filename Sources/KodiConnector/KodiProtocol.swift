@@ -19,12 +19,12 @@ public struct KodiAddress {
     var port: Int
     var websocketPort: Int
     
-    public var baseUrl: URL {
-        return URL(string: "http://\(ip):\(port)/")!
+    public var baseUrl: URL? {
+        return URL(string: "http://\(ip):\(port)/")
     }
 
-    public var jsonRpcUrl: URL {
-        return URL(string: "http://\(ip):\(port)/jsonrpc")!
+    public var jsonRpcUrl: URL? {
+        return URL(string: "http://\(ip):\(port)/jsonrpc")
     }
 }
 
