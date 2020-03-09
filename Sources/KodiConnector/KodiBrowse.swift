@@ -113,11 +113,11 @@ public class KodiBrowse: BrowseProtocol {
     }
     
     public func artistBrowseViewModel(_ genre: Genre, type: ArtistType) -> ArtistBrowseViewModel {
-        return KodiArtistBrowseViewModel(kodi: kodi)
+        return KodiArtistBrowseViewModel(kodi: kodi, filters: [.genre(genre)])
     }
     
     public func artistBrowseViewModel(_ artists: [Artist]) -> ArtistBrowseViewModel {
-        return KodiArtistBrowseViewModel(kodi: kodi)
+        return KodiArtistBrowseViewModel(kodi: kodi, artists: artists)
     }
     
     public func playlistBrowseViewModel() -> PlaylistBrowseViewModel {
@@ -186,6 +186,13 @@ public class KodiBrowse: BrowseProtocol {
             })
     }
     
+    /// Filter artists that exist in the library
+    /// - Parameter artist: the set of artists to check
+    /// - Returns: an observable of the filtered array of artists
+    public func existingArtists(artists: [Artist]) -> Observable<[Artist]> {
+        return Observable.just(artists)
+    }
+
     public func preprocessCoverURI(_ coverURI: CoverURI) -> Observable<CoverURI> {
         return Observable.just(coverURI)
     }
