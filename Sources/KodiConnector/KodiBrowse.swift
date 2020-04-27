@@ -28,7 +28,7 @@ public class KodiBrowse: BrowseProtocol {
     
     public func songsOnAlbum(_ album: Album) -> Observable<[Song]> {
         guard let albumId = Int(album.id) else {
-            return Observable.empty()
+            return Observable.just([])
         }
         
         return kodi.getSongsOnAlbum(albumId)
@@ -39,6 +39,7 @@ public class KodiBrowse: BrowseProtocol {
                     kodiSong.song(kodiAddress: weakSelf.kodi.kodiAddress)
                 })
             })
+            .catchErrorJustReturn([])
     }
     
     public func songsInPlaylist(_ playlist: Playlist) -> Observable<[Song]> {
@@ -56,6 +57,7 @@ public class KodiBrowse: BrowseProtocol {
                     return nil
                 })
         }
+        .catchErrorJustReturn([])
     }
     
     public func search(_ search: String, limit: Int, filter: [SourceType]) -> Observable<SearchResult> {
@@ -85,7 +87,8 @@ public class KodiBrowse: BrowseProtocol {
                 result.albums = albums
                 result.artists = artists
                 return result
-        }
+            }
+            .catchErrorJustReturn(SearchResult())
     }
     
     public func albumSectionBrowseViewModel() -> AlbumSectionBrowseViewModel {

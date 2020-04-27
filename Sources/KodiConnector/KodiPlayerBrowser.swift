@@ -99,11 +99,11 @@ public class KodiPlayerBrowser: PlayerBrowserProtocol {
             else { return Observable.just(nil) }
         
         let kodi = KodiWrapper(kodi: KodiAddress(ip: hostName, port: port, websocketPort: websocketPort), getPlayerId: false)
+        let defaults = userDefaults
         return kodi.ping()
-            .flatMap({ [weak self] (success) -> Observable<PlayerProtocol?> in
-                guard let weakSelf = self else { return Observable.just(nil) }
+            .flatMap({ (success) -> Observable<PlayerProtocol?> in
                 if success {
-                    return Observable.just(KodiPlayer(name: name, host: hostName, port: port, websocketPort: websocketPort, userDefaults: weakSelf.userDefaults))
+                    return Observable.just(KodiPlayer(name: name, host: hostName, port: port, websocketPort: websocketPort, userDefaults: defaults))
                 }
                 else {
                     return Observable.just(nil)
