@@ -111,28 +111,26 @@ public class KodiControl: ControlProtocol {
     public func toggleConsume() {
     }
     
-    public func setVolume(_ volume: Float) {
-        // Don't use a dispose bag, as that will immediately release the observable.
-        _ = kodi.setVolume(volume)
-            .subscribe()
+    public func setVolume(_ volume: Float) -> Observable<PlayerStatus> {
+        return requestWithStatus(stream: .audio, controlObservable: kodi.setVolume(volume))
     }
     
-    public func setSeek(seconds: UInt32) {
-        // Seek is only possible on the audio stream, not for radio
-        if kodi.stream == .audio {
-            // Don't use a dispose bag, as that will immediately release the observable.
-            _ = kodi.seek(seconds)
-                .subscribe()
-        }
+    public func adjustVolume(_ adjustment: Float) -> Observable<PlayerStatus> {
+        return KodiStatus(kodi: kodi).getStatus()
+            .map { (playerStatus) -> Float in
+                playerStatus.volume
+            }
+            .flatMap { (volume) -> Observable<PlayerStatus> in
+                self.requestWithStatus(stream: .audio, controlObservable: self.kodi.setVolume(volume + adjustment))
+            }
     }
     
-    public func setSeek(percentage: Float) {
-        // Seek is only possible on the audio stream, not for radio
-        if kodi.stream == .audio {
-            // Don't use a dispose bag, as that will immediately release the observable.
-            _ = kodi.seek(percentage)
-                .subscribe()
-        }
+    public func setSeek(seconds: UInt32) -> Observable<PlayerStatus> {
+        return requestWithStatus(stream: .audio, controlObservable: kodi.seek(seconds))
+    }
+    
+    public func setSeek(percentage: Float) -> Observable<PlayerStatus> {
+        return requestWithStatus(stream: .audio, controlObservable: kodi.seek(percentage))
     }
     
     public func add(_ song: Song, addDetails: AddDetails) -> Observable<(Song, AddResponse)> {
