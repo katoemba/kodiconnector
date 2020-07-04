@@ -8,16 +8,17 @@
 
 import Foundation
 import RxSwift
-import RxAlamofire
-import Alamofire
 
 public class KodiWrapper: KodiProtocol {
-    private let encoding = JSONEncoding.default
-    private let headers = ["Content-Type": "application/json"]
+    enum ResponseError: Error {
+        case responseError
+    }
+
     private(set) var kodi: KodiAddress
     public var kodiAddress: KodiAddress {
         return kodi
     }
+    private var sessionManager: URLSession
 
     public var playerId = 0
     public var stream: KodiStream {
@@ -25,24 +26,10 @@ public class KodiWrapper: KodiProtocol {
     }
     
     private var bag = DisposeBag()
-    
-    private func jsonPostRequest(_ url: URL, parameters: [String: Any]) -> Observable<(HTTPURLResponse, Any)> {
-        return RxAlamofire.requestJSON(.post, url, parameters: parameters, encoding: encoding, headers: headers)
-    }
-    public func dataPostRequest(_ url: URL?, parameters: [String: Any]) -> Observable<(HTTPURLResponse, Data)> {
-        guard let url = url else { return Observable.empty() }
-        return RxAlamofire.requestData(.post, url, parameters: parameters, encoding: encoding, headers: headers)
-            .flatMapFirst { (arg) -> Observable<(HTTPURLResponse, Data)> in
-                let (response, data) = arg
-                guard response.statusCode == 200, (response.mimeType ?? "").contains("json") else {
-                    return Observable.empty()
-                }
-                return Observable.just((response, data))
-            }
-    }
-    
-    public init(kodi: KodiAddress, getPlayerId: Bool) {
+        
+    public init(kodi: KodiAddress, getPlayerId: Bool, sessionManager: URLSession? = nil) {
         self.kodi = kodi
+        self.sessionManager = sessionManager ?? URLSession.shared
         if getPlayerId {
             self.getActivePlayers()
                 .subscribe(onNext: { [weak self] (playerId, isAudio) in
@@ -51,5 +38,37 @@ public class KodiWrapper: KodiProtocol {
                 })
                 .disposed(by: bag)
         }
+    }
+
+    public func dataPostRequest(_ url: URL?, parameters: [String: Any], timeoutInterval: TimeInterval = 15.0) -> Observable<(HTTPURLResponse, Data)> {
+        guard let url = url else { return Observable.empty() }
+        
+        return Observable.create { (observer) in
+            var request = URLRequest(url: url, timeoutInterval: timeoutInterval)
+            request.httpMethod = "POST"
+            request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.addValue("application/json", forHTTPHeaderField: "Accept")
+
+            do {
+                request.httpBody = try JSONSerialization.data(withJSONObject: parameters, options: .prettyPrinted) // pass dictionary to nsdata object and set it as request body
+            } catch let error {
+                print(error.localizedDescription)
+            }
+
+            let task = self.sessionManager.dataTask(with: request) { data, response, error in
+                if let response = response as? HTTPURLResponse, response.statusCode == 200, (response.mimeType ?? "").contains("json"),
+                    let data = data {
+                    observer.onNext((response, data))
+                    observer.onCompleted()
+                }
+                else {
+                    observer.onError(ResponseError.responseError)
+                }
+            }
+
+            task.resume()
+            return Disposables.create()
+        }
+        .observeOn(MainScheduler.instance)
     }
 }

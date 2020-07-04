@@ -10,8 +10,6 @@ import Foundation
 import ConnectorProtocol
 import RxSwift
 import RxNetService
-import Alamofire
-import RxAlamofire
 
 /// Class to monitor kodiPlayers appearing and disappearing from the network.
 public class KodiPlayerBrowser: PlayerBrowserProtocol {

@@ -21,7 +21,6 @@
 KodiConnector depends on
 * ConnectorProtocol, the generic music player protocol it implements
 * RxSwift as the reactive framework
-* Alamofire for making json-rpc requests to the player
 * Starscream to receive status updates from the player via websockets
 
 Build and usage via swift package manager is supported:
