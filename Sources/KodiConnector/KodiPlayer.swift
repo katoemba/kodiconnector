@@ -17,6 +17,8 @@ public enum KodiConnectionProperties: String {
 }
 
 public class KodiPlayer: PlayerProtocol {
+    public var playerStreamURL: URL?
+    
     private let userDefaults: UserDefaults
     private var kodi: KodiProtocol
     public static let controllerType = "Kodi"

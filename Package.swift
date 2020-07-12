@@ -12,7 +12,7 @@ let package = Package(
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
-        .package(url: "https://github.com/katoemba/connectorprotocol.git", .upToNextMajor(from: "1.7.6")),
+        .package(url: "https://github.com/katoemba/connectorprotocol.git", .upToNextMajor(from: "1.7.8")),
         .package(url: "https://github.com/katoemba/rxnetservice.git", .upToNextMajor(from: "0.2.1")),
         .package(url: "https://github.com/ReactiveX/RxSwift.git", .upToNextMajor(from: "5.0.1")),
         .package(url: "https://github.com/RxSwiftCommunity/RxSwiftExt.git", .upToNextMajor(from: "5.2.0")),
@@ -23,7 +23,7 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages which this package depends on.
         .target(
             name: "KodiConnector",
-            dependencies: ["ConnectorProtocol", "RxNetService", "RxSwift", "RxCocoa", "RxSwiftExt", "Starscream"]),
+            dependencies: ["ConnectorProtocol", "RxNetService", "RxSwift", "RxRelay", "RxSwiftExt", "Starscream"]),
         .testTarget(
             name: "KodiConnectorTests",
             dependencies: ["KodiConnector"])

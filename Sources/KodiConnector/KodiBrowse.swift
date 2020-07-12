@@ -9,7 +9,6 @@
 import Foundation
 import ConnectorProtocol
 import RxSwift
-import RxCocoa
 
 public class KodiBrowse: BrowseProtocol {
     private var kodi: KodiProtocol
@@ -47,7 +46,7 @@ public class KodiBrowse: BrowseProtocol {
             .map { [weak self] (kodiFiles) -> [Song] in
                 guard let weakSelf = self else { return [] }
                 guard let files = kodiFiles.files else { return [] }
-
+                
                 return files.compactMap({ (kodiFile) -> Song? in
                     let folderContent = kodiFile.folderContent(kodiAddress: weakSelf.kodi.kodiAddress)
                     
@@ -87,8 +86,8 @@ public class KodiBrowse: BrowseProtocol {
                 result.albums = albums
                 result.artists = artists
                 return result
-            }
-            .catchErrorJustReturn(SearchResult())
+        }
+        .catchErrorJustReturn(SearchResult())
     }
     
     public func albumSectionBrowseViewModel() -> AlbumSectionBrowseViewModel {
@@ -195,7 +194,7 @@ public class KodiBrowse: BrowseProtocol {
     public func existingArtists(artists: [Artist]) -> Observable<[Artist]> {
         return Observable.just(artists)
     }
-
+    
     public func preprocessCoverURI(_ coverURI: CoverURI) -> Observable<CoverURI> {
         return Observable.just(coverURI)
     }
@@ -208,6 +207,68 @@ public class KodiBrowse: BrowseProtocol {
         return Observable.empty()
     }
     
+    /// Search for the existance a certain item
+    /// - Parameter searchItem: what to search for
+    /// - Returns: an observable array of results
+    public func search(searchItem: SearchItem) -> Observable<[FoundItem]> {
+        let kodi = self.kodi
+        switch searchItem {
+        case let .artist(name):
+            return kodi.getArtistId(name)
+                .map { (id) -> [FoundItem] in
+                    [FoundItem.artist(Artist(id: "\(id)", source: .Local, name: name))]
+                }
+        case let .artistAlbum(artist, sort):
+            return kodi.getArtistId(artist)
+                .flatMapFirst({ (id) -> Observable<[FoundItem]> in
+                    return self.kodi.getAlbums(artistid: id, sort: ["order": sort == .yearReverse ? "descending" : "ascending", "method": "date"])
+                        .map { (kodiAlbums) -> [FoundItem] in
+                            kodiAlbums.albums.map { (kodiAlbum) -> FoundItem in
+                                .album(kodiAlbum.album(kodiAddress: kodi.kodiAddress))
+                            }
+                        }
+                })
+        case let .album(album, artist):
+            return kodi.searchAlbums(album, limit: 10)
+                .map { (kodiAlbums) -> [FoundItem] in
+                    kodiAlbums.compactMap { (kodiAlbum) -> FoundItem? in
+                        if let artist = artist {
+                            if kodiAlbum.displayartist == artist {
+                                return .album(kodiAlbum.album(kodiAddress: kodi.kodiAddress))
+                            }
+                            return nil
+                        }
+                        return .album(kodiAlbum.album(kodiAddress: kodi.kodiAddress))
+                    }
+            }
+        case let .genre(name):
+            return kodi.getGenres()
+                .map { (kodiGenres) -> [FoundItem] in
+                    kodiGenres.genres.compactMap { (kodiGenre) -> FoundItem? in
+                        kodiGenre.label.lowercased() == name.lowercased() ? .genre(kodiGenre.genre) : nil
+                    }
+            }
+        case let .song(title, artist):
+            return kodi.searchSongs(title, limit: 5)
+                .map { (kodiSongs) -> [FoundItem] in
+                    kodiSongs.compactMap { (kodiSong) -> FoundItem? in
+                        if let artist = artist {
+                            if kodiSong.albumartist.map({ $0.lowercased() }).contains(artist.lowercased()) {
+                                return .song(kodiSong.song(kodiAddress: kodi.kodiAddress))
+                            }
+                            else {
+                                return nil
+                            }
+                        }
+                        else {
+                            return .song(kodiSong.song(kodiAddress: kodi.kodiAddress))
+                        }
+                    }
+            }
+        default:
+            return Observable.just([])
+        }
+    }
 }
 
 extension KodiSong {
@@ -249,7 +310,7 @@ extension KodiAlbum {
         if thumbnail != "", let url = kodiAddress.baseUrl {
             album.coverURI = CoverURI.fullPathURI("\(url)image/\(thumbnail.addingPercentEncoding(withAllowedCharacters: .letters)!)")
         }
-
+        
         return album
     }
 }
@@ -304,7 +365,7 @@ extension KodiFile {
             if thumbnail != "", let url = kodiAddress.baseUrl {
                 song.coverURI = CoverURI.fullPathURI("\(url)image/\(thumbnail.addingPercentEncoding(withAllowedCharacters: .letters)!)")
             }
-
+            
             return .song(song)
         }
         
