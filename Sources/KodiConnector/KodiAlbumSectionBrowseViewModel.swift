@@ -17,9 +17,7 @@ public class KodiAlbumSectionBrowseViewModel: AlbumSectionBrowseViewModel {
     }
     
     private var albumSectionsSubject = ReplaySubject<AlbumSections>.create(bufferSize: 1)
-    public var albumSectionsObservable: Observable<AlbumSections> {
-        return albumSectionsSubject.asObservable()
-    }
+    public let albumSectionsObservable: Observable<AlbumSections>
     
     public private(set) var sort = SortType.artist
     public var availableSortOptions: [SortType] {
@@ -32,6 +30,7 @@ public class KodiAlbumSectionBrowseViewModel: AlbumSectionBrowseViewModel {
     public init(kodi: KodiProtocol) {
         self.kodi = kodi
         
+        albumSectionsObservable = albumSectionsSubject.share()
         loadProgress.onNext(.notStarted)
     }
 
@@ -82,8 +81,18 @@ public class KodiAlbumSectionBrowseViewModel: AlbumSectionBrowseViewModel {
                     sortedKeys = sortedKeys.reversed()
                 }
                 return sortedKeys.map({ (key) -> (String, [Album]) in
-                        (key, dict[key]!)
-                    })
+                    if sort == .artist {
+                        return (key, dict[key]!.sorted(by: { (lhs, rhs) -> Bool in
+                            let artistCompare = lhs.sortArtist.caseInsensitiveCompare(rhs.sortArtist)
+                            if artistCompare == .orderedSame {
+                                return lhs.year < rhs.year
+                            }
+                            
+                            return (artistCompare == .orderedAscending)
+                        }))
+                    }
+                    return (key, dict[key]!)
+                })
             })
             .map({ (sectionDictionary) -> AlbumSections in
                 AlbumSections(sectionDictionary, completeObjects: { (albums) -> Observable<[Album]> in

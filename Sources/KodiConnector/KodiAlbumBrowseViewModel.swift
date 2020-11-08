@@ -97,9 +97,9 @@ public class KodiAlbumBrowseViewModel: AlbumBrowseViewModel {
         
         loadProgress.accept(.loading)
         kodi.getAlbums(genreid: genreId, sort: sort.parameterArray)
-            .do() { [weak self] in
+            .do(onNext:  { [weak self] _ in
                 self?.loadProgress.accept(.dataAvailable)
-        }
+            })
         .map({ [weak self] (kodiAlbums) -> [Album] in
             guard let weakSelf = self else { return [] }
             
@@ -117,9 +117,9 @@ public class KodiAlbumBrowseViewModel: AlbumBrowseViewModel {
     private func loadRecent(count: Int) {
         loadProgress.accept(.loading)
         kodi.getRecentAlbums(count: count)
-            .do() { [weak self] in
+            .do(onNext:  { [weak self] _ in
                 self?.loadProgress.accept(.dataAvailable)
-        }
+            })
         .map({ [weak self] (kodiAlbums) -> [Album] in
             guard let weakSelf = self else { return [] }
             
@@ -150,9 +150,9 @@ public class KodiAlbumBrowseViewModel: AlbumBrowseViewModel {
                 guard let weakSelf = self else { return Observable.empty() }
                 return kodi.getAlbums(artistid: artistId, sort: weakSelf.sort.parameterArray)
         }
-        .do() { [weak self] in
-            self?.loadProgress.accept(.dataAvailable)
-        }
+            .do(onNext:  { [weak self] _ in
+                self?.loadProgress.accept(.dataAvailable)
+            })
         .map({ [weak self] (kodiAlbums) -> [Album] in
             guard let weakSelf = self else { return [] }
             
