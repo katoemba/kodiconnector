@@ -68,7 +68,7 @@ public class KodiStatus: StatusProtocol {
                 return newPlayerStatus
             })
             .unwrap()
-            .observeOn(MainScheduler.instance)
+            .observe(on: MainScheduler.instance)
             .subscribe(onNext: { (playerStatus) in
                 playerStatusSubject.onNext(playerStatus)
             })
@@ -124,7 +124,7 @@ public class KodiStatus: StatusProtocol {
     public func forceStatusRefresh() {
         let playerStatusSubject = self.playerStatus
         getStatus()
-            .observeOn(MainScheduler.instance)
+            .observe(on: MainScheduler.instance)
             .subscribe(onNext: { (playerStatus) in
                 playerStatusSubject.onNext(playerStatus)
             })

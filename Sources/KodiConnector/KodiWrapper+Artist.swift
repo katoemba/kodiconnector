@@ -30,7 +30,7 @@ extension KodiWrapper {
                 let root = try JSONDecoder().decode(Root.self, from: data)
                 return root.result
             })
-            .catchError({ (error) -> Observable<KodiArtists> in
+            .catch({ (error) -> Observable<KodiArtists> in
                 print(error)
                 return Observable.empty()
             })
@@ -58,7 +58,7 @@ extension KodiWrapper {
                 
                 return root.result
             })
-            .catchError({ (error) -> Observable<KodiArtists> in
+            .catch({ (error) -> Observable<KodiArtists> in
                 print(error)
                 return Observable.just(KodiArtists(artists:[], limits: Limits(start: 0, end: 0, total: 0)))
             })
@@ -77,7 +77,7 @@ extension KodiWrapper {
                 }
                 return artistid
             })
-            .catchError({ (error) -> Observable<Int> in
+            .catch({ (error) -> Observable<Int> in
                 print(error)
                 return Observable.empty()
             })
@@ -102,7 +102,7 @@ extension KodiWrapper {
                 let root = try JSONDecoder().decode(Root.self, from: data)
                 return root.result.artistdetails
             })
-            .catchError({ (error) -> Observable<KodiArtist> in
+            .catch({ (error) -> Observable<KodiArtist> in
                 print(error)
                 return Observable.empty()
             })
@@ -128,7 +128,7 @@ extension KodiWrapper {
             .map({ (response, data) -> (Bool) in
                 return true
             })
-            .catchError({ (error) -> Observable<(Bool)> in
+            .catch({ (error) -> Observable<(Bool)> in
                 print(error)
                 return Observable.just(false)
             })

@@ -31,7 +31,7 @@ extension KodiWrapper {
                 
                 return (json.result.size, json.result.type)
             })
-            .catchError({ (error) -> Observable<(Int, String)> in
+            .catch({ (error) -> Observable<(Int, String)> in
                 print(error)
                 return Observable.empty()
             })
@@ -64,7 +64,7 @@ extension KodiWrapper {
 
                 return json.result.items ?? []
             })
-            .catchError({ (error) -> Observable<[KodiSong]> in
+            .catch({ (error) -> Observable<[KodiSong]> in
                 print(error)
                 return Observable.just([])
             })
@@ -80,7 +80,7 @@ extension KodiWrapper {
             .map({ (response, data) -> (Bool) in
                 return true
             })
-            .catchError({ (error) -> Observable<(Bool)> in
+            .catch({ (error) -> Observable<(Bool)> in
                 print(error)
                 return Observable.just(false)
             })
@@ -96,7 +96,7 @@ extension KodiWrapper {
             .map({ (response, data) -> (Bool) in
                 return true
             })
-            .catchError({ (error) -> Observable<(Bool)> in
+            .catch({ (error) -> Observable<(Bool)> in
                 print(error)
                 return Observable.just(false)
             })
@@ -112,7 +112,7 @@ extension KodiWrapper {
             .map({ (response, data) -> (Bool) in
                 return true
             })
-            .catchError({ (error) -> Observable<(Bool)> in
+            .catch({ (error) -> Observable<(Bool)> in
                 print(error)
                 return Observable.just(false)
             })
@@ -128,7 +128,7 @@ extension KodiWrapper {
             .map({ (response, data) -> (Bool) in
                 return true
             })
-            .catchError({ (error) -> Observable<(Bool)> in
+            .catch({ (error) -> Observable<(Bool)> in
                 print(error)
                 return Observable.just(false)
             })
@@ -146,7 +146,7 @@ extension KodiWrapper {
             .map({ (response, data) -> (Bool) in
                 return true
             })
-            .catchError({ (error) -> Observable<(Bool)> in
+            .catch({ (error) -> Observable<(Bool)> in
                 print(error)
                 return Observable.just(false)
             })
@@ -163,7 +163,7 @@ extension KodiWrapper {
             .map({ (response, data) -> (Bool) in
                 return true
             })
-            .catchError({ (error) -> Observable<(Bool)> in
+            .catch({ (error) -> Observable<(Bool)> in
                 print(error)
                 return Observable.just(false)
             })

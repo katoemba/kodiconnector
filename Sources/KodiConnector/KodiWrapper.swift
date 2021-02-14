@@ -69,6 +69,6 @@ public class KodiWrapper: KodiProtocol {
             task.resume()
             return Disposables.create()
         }
-        .observeOn(MainScheduler.instance)
+        .observe(on: MainScheduler.instance)
     }
 }

@@ -28,7 +28,7 @@ extension KodiWrapper {
                 let root = try JSONDecoder().decode(Root.self, from: data)
                 return root.result
             })
-            .catchError({ (error) -> Observable<KodiSources> in
+            .catch({ (error) -> Observable<KodiSources> in
                 print(error)
                 return Observable.empty()
             })
@@ -51,7 +51,7 @@ extension KodiWrapper {
                 let root = try JSONDecoder().decode(Root.self, from: data)
                 return root.result
             })
-            .catchError({ (error) -> Observable<KodiFiles> in
+            .catch({ (error) -> Observable<KodiFiles> in
                 print(error)
                 return Observable.empty()
             })

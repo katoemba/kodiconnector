@@ -24,7 +24,7 @@ extension KodiWrapper {
                 let json = try JSONDecoder().decode(Root.self, from: data)
                 return json.result == "pong"
             })
-            .catchError({ (error) -> Observable<Bool> in
+            .catch({ (error) -> Observable<Bool> in
                 print(error)
                 return Observable.just(false)
             })
@@ -57,7 +57,7 @@ extension KodiWrapper {
                     throw MyError.activePlayerError
                 }
             })
-            .catchError({ (error) -> Observable<(Int, Bool)> in
+            .catch({ (error) -> Observable<(Int, Bool)> in
                 print(error)
                 return Observable.just((0, true))
             })
@@ -89,7 +89,7 @@ extension KodiWrapper {
             .map({ (response, data) -> (Bool) in
                 return true
             })
-            .catchError({ (error) -> Observable<(Bool)> in
+            .catch({ (error) -> Observable<(Bool)> in
                 print(error)
                 return Observable.just(false)
             })
@@ -104,7 +104,7 @@ extension KodiWrapper {
             .map({ (response, data) -> (Bool) in
                 return true
             })
-            .catchError({ (error) -> Observable<(Bool)> in
+            .catch({ (error) -> Observable<(Bool)> in
                 print(error)
                 return Observable.just(false)
             })

@@ -32,7 +32,7 @@ extension KodiWrapper {
                 let json = try JSONDecoder().decode(Root.self, from: data)
                 return json.result.buildVersion
             })
-            .catchError({ (error) -> Observable<String> in
+            .catch({ (error) -> Observable<String> in
                 print(error)
                 return Observable.just("Unknown")
             })
@@ -60,7 +60,7 @@ extension KodiWrapper {
                 let json = try JSONDecoder().decode(Root.self, from: data)
                 return "\(json.result.version.major).\(json.result.version.minor).\(json.result.version.patch)"
             })
-            .catchError({ (error) -> Observable<String> in
+            .catch({ (error) -> Observable<String> in
                 print(error)
                 return Observable.just("0.0.0")
             })
@@ -97,7 +97,7 @@ extension KodiWrapper {
                 
                 return (json.result.name, json.result.version.description, json.result.volume)
             })
-            .catchError({ (error) -> Observable<(String, String, Int)> in
+            .catch({ (error) -> Observable<(String, String, Int)> in
                 print(error)
                 return Observable.empty()
             })

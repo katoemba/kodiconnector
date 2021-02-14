@@ -63,7 +63,7 @@ public class KodiArtistBrowseViewModel: ArtistBrowseViewModel {
                         kodiArtist.artist
                     })
                 })
-                .observeOn(MainScheduler.instance)
+                .observe(on: MainScheduler.instance)
                 .share(replay: 1)
         }
 
