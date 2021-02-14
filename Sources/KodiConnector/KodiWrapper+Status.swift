@@ -193,7 +193,7 @@ extension KodiWrapper {
                 
                 return 0
             })
-            .catchError({ (error) -> Observable<(Int)> in
+            .catch({ (error) -> Observable<(Int)> in
                 print(error)
                 return Observable.just(0)
             })
@@ -214,7 +214,7 @@ extension KodiWrapper {
                 let json = try JSONDecoder().decode(Root.self, from: data)
                 return json.result
             })
-            .catchError({ (error) -> Observable<KodiPlayerProperties> in
+            .catch({ (error) -> Observable<KodiPlayerProperties> in
                 print(error)
                 return Observable.empty()
             })

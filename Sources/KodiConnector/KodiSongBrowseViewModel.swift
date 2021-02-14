@@ -131,7 +131,7 @@ public class KodiSongBrowseViewModel: SongBrowseViewModel {
                     }
                     return songs
                 })
-                .observeOn(MainScheduler.instance)
+                .observe(on: MainScheduler.instance)
                 .share(replay: 1)
         case let .random(count):
             // Getting all the songs is not the best approach, but adding a batch of songs (like 100) is even slower.

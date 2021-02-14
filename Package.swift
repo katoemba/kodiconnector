@@ -13,9 +13,9 @@ let package = Package(
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         .package(url: "https://github.com/katoemba/connectorprotocol.git", .branch("master")),
-        .package(url: "https://github.com/katoemba/rxnetservice.git", .upToNextMajor(from: "0.2.1")),
-        .package(url: "https://github.com/ReactiveX/RxSwift.git", .upToNextMajor(from: "5.0.1")),
-        .package(url: "https://github.com/RxSwiftCommunity/RxSwiftExt.git", .upToNextMajor(from: "5.2.0")),
+        .package(url: "https://github.com/katoemba/rxnetservice.git", .branch("master")),
+        .package(url: "https://github.com/ReactiveX/RxSwift.git", .upToNextMajor(from: "6.0.0")),
+        .package(url: "https://github.com/RxSwiftCommunity/RxSwiftExt.git", .upToNextMajor(from: "6.0.0")),
         .package(url: "https://github.com/daltoniam/Starscream.git", .upToNextMajor(from: "3.1.1"))
     ],
     targets: [

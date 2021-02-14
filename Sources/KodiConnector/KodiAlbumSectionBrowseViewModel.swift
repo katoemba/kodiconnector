@@ -49,7 +49,7 @@ public class KodiAlbumSectionBrowseViewModel: AlbumSectionBrowseViewModel {
                     kodiAlbum.album(kodiAddress: weakSelf.kodi.kodiAddress)
                 })
             })
-            .observeOn(MainScheduler.instance)
+            .observe(on: MainScheduler.instance)
             .share(replay: 1)
 
         albumObservable
