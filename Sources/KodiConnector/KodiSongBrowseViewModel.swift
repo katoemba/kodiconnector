@@ -200,4 +200,14 @@ public class KodiSongBrowseViewModel: SongBrowseViewModel {
             })
             .disposed(by: bag)
     }
+    
+    public func songBatch(start: Int, count: Int) -> Observable<[Song]> {
+        return kodi.getSongsWithFilter([:], sort: [:], start: start, end: (start + count))
+            .withUnretained(self)
+            .map { (owner, kodiSongs) -> [Song] in
+                return kodiSongs.map({ (kodiSong) -> Song in
+                    kodiSong.song(kodiAddress: owner.kodi.kodiAddress)
+                })
+            }
+    }
 }
