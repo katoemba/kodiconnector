@@ -10,7 +10,7 @@ import Foundation
 import RxSwift
 
 extension KodiWrapper {
-    public static let songProperties = ["album", "displayartist", "albumartist", "duration", "track", "thumbnail", "year", "genre", "file", "albumartistid", "albumid", "artistid"]
+    public static let songProperties = ["album", "displayartist", "albumartist", "duration", "track", "thumbnail", "year", "genre", "file", "albumartistid", "albumid", "artistid", "disc"]
     
     public func getCurrentSong() -> Observable<KodiSong?> {
         struct Root: Decodable {

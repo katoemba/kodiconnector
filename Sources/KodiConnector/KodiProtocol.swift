@@ -70,6 +70,7 @@ public struct KodiSong: Decodable {
     var duration: Int
     var year: Int
     var track: Int
+    var disc: Int
     var genre: [String]
     var thumbnail: String
     var albumid: Int
@@ -153,6 +154,7 @@ public struct KodiFile: Decodable {
     var year: Int?
     var genre: [String]?
     var track: Int?
+    var disc: Int?
 }
 extension KodiFile: Comparable {
     public static func < (lhs: KodiFile, rhs: KodiFile) -> Bool {

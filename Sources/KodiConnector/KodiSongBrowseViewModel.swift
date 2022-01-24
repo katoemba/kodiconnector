@@ -107,6 +107,10 @@ public class KodiSongBrowseViewModel: SongBrowseViewModel {
                         }
                         return nil
                     })
+                    .sorted(by: {
+                        $0.disc < $1.disc || ($0.disc == $1.disc && $0.track < $1.track)
+                    })
+
             }
         case let .album(album):
             guard let albumId = Int(album.id) else {
@@ -125,8 +129,8 @@ public class KodiSongBrowseViewModel: SongBrowseViewModel {
                 .map({ (songs) -> [Song] in
                     // If songs have track numbers, sort them by track number. Otherwise pass untouched.
                     if songs.count > 0, songs[0].track > 0 {
-                        return songs.sorted(by: { (lsong, rsong) -> Bool in
-                            lsong.track < rsong.track
+                        return songs.sorted(by: {
+                            $0.disc < $1.disc || ($0.disc == $1.disc && $0.track < $1.track)
                         })
                     }
                     return songs

@@ -10,7 +10,7 @@ import Foundation
 import RxSwift
 
 extension KodiWrapper {
-    public static let fileProperties = ["album", "displayartist", "duration", "thumbnail", "year", "albumartist", "genre", "track"]
+    public static let fileProperties = ["album", "displayartist", "duration", "thumbnail", "year", "albumartist", "genre", "track", "disc"]
 
     public func getSources() -> Observable<KodiSources> {
 

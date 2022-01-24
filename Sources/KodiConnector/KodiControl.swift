@@ -354,12 +354,15 @@ public class KodiControl: ControlProtocol {
         return kodi.getDirectory(folder.path)
             .map({ (kodiFiles) -> [Song] in
                 guard let files = kodiFiles.files else { return [] }
-                return files.sorted()
+                return files
                     .compactMap({ (kodiFile) -> Song? in
                         if case let .song(song)? = kodiFile.folderContent(kodiAddress: self.kodi.kodiAddress) {
                             return song
                         }
                         return nil
+                    })
+                    .sorted(by: {
+                        $0.disc < $1.disc || ($0.disc == $1.disc && $0.track < $1.track)
                     })
             })
             .flatMap { (songs) -> Observable<(Folder, AddResponse)> in

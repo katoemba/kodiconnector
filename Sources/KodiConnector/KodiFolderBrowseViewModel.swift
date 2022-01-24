@@ -87,9 +87,35 @@ public class KodiFolderBrowseViewModel: FolderBrowseViewModel {
                 guard let weakSelf = self else { return [] }
                 guard let files = kodiFiles.files else { return [] }
 
-                return files.sorted().compactMap({ (kodiFile) -> FolderContent? in
-                    kodiFile.folderContent(kodiAddress: weakSelf.kodi.kodiAddress)
-                })
+                return files
+                    .compactMap({ (kodiFile) -> FolderContent? in
+                        kodiFile.folderContent(kodiAddress: weakSelf.kodi.kodiAddress)
+                    })
+                    .sorted(by: {
+                        if case let .song(song0) = $0, case let .song(song1) = $1 {
+                            return song0.disc < song1.disc || (song0.disc == song1.disc && song0.track < song1.track)
+                        }
+                        
+                        var name0 = ""
+                        var name1 = ""
+                        switch $0 {
+                        case let .song(song):
+                            name0 = song.title
+                        case let .playlist(playlist):
+                            name0 = playlist.name
+                        case let .folder(folder):
+                            name0 = folder.name
+                        }
+                        switch $1 {
+                        case let .song(song):
+                            name1 = song.title
+                        case let .playlist(playlist):
+                            name1 = playlist.name
+                        case let .folder(folder):
+                            name1 = folder.name
+                        }
+                        return name0 < name1
+                    })
             }
             .share()
         

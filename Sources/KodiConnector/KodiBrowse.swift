@@ -55,7 +55,7 @@ public class KodiBrowse: BrowseProtocol {
                     }
                     return nil
                 })
-        }
+            }
             .catchAndReturn([])
     }
     
@@ -65,19 +65,19 @@ public class KodiBrowse: BrowseProtocol {
                 songs.map({ (kodiSong) -> Song in
                     kodiSong.song(kodiAddress: self.kodi.kodiAddress)
                 })
-        }
+            }
         let albumSearch = kodi.searchAlbums(search, limit: limit)
             .map { (albums) -> ([Album]) in
                 albums.map({ (kodiAlbum) -> Album in
                     kodiAlbum.album(kodiAddress: self.kodi.kodiAddress)
                 })
-        }
+            }
         let artistSearch = kodi.searchArtists(search, limit: limit)
             .map { (artists) -> ([Artist]) in
                 artists.map({ (kodiArtist) -> Artist in
                     kodiArtist.artist
                 })
-        }
+            }
         
         return Observable.combineLatest(songSearch, albumSearch, artistSearch)
             .map { (songs, albums,artists) -> SearchResult in
@@ -86,7 +86,7 @@ public class KodiBrowse: BrowseProtocol {
                 result.albums = albums
                 result.artists = artists
                 return result
-        }
+            }
             .catchAndReturn(SearchResult())
     }
     
@@ -216,7 +216,7 @@ public class KodiBrowse: BrowseProtocol {
                     return self.kodi.getAlbums(artistid: id, sort: ["order": sort == .yearReverse ? "descending" : "ascending", "method": "date"])
                         .map { (kodiAlbums) -> [FoundItem] in
                             kodiAlbums.albums.map { (kodiAlbum) -> FoundItem in
-                                .album(kodiAlbum.album(kodiAddress: kodi.kodiAddress))
+                                    .album(kodiAlbum.album(kodiAddress: kodi.kodiAddress))
                             }
                         }
                 })
@@ -232,14 +232,14 @@ public class KodiBrowse: BrowseProtocol {
                         }
                         return .album(kodiAlbum.album(kodiAddress: kodi.kodiAddress))
                     }
-            }
+                }
         case let .genre(name):
             return kodi.getGenres()
                 .map { (kodiGenres) -> [FoundItem] in
                     kodiGenres.genres.compactMap { (kodiGenre) -> FoundItem? in
                         kodiGenre.label.lowercased() == name.lowercased() ? .genre(kodiGenre.genre) : nil
                     }
-            }
+                }
         case let .song(title, artist):
             return kodi.searchSongs(title, limit: 5)
                 .map { (kodiSongs) -> [FoundItem] in
@@ -256,7 +256,7 @@ public class KodiBrowse: BrowseProtocol {
                             return .song(kodiSong.song(kodiAddress: kodi.kodiAddress))
                         }
                     }
-            }
+                }
         default:
             return Observable.just([])
         }
@@ -266,19 +266,20 @@ public class KodiBrowse: BrowseProtocol {
 extension KodiSong {
     public func song(kodiAddress: KodiAddress) -> Song {
         var song = Song(id: "\(uniqueId)",
-            source: .Local,
-            location: file,
-            title: label,
-            album: album,
-            artist: displayartist ?? "",
-            albumartist: albumartist.count > 0 ? albumartist[0] : (displayartist ?? ""),
-            composer: "",
-            year: year,
-            genre: genre,
-            length: duration,
-            quality: QualityStatus(),
-            position: 0,
-            track: track)
+                        source: .Local,
+                        location: file,
+                        title: label,
+                        album: album,
+                        artist: displayartist ?? "",
+                        albumartist: albumartist.count > 0 ? albumartist[0] : (displayartist ?? ""),
+                        composer: "",
+                        year: year,
+                        genre: genre,
+                        length: duration,
+                        quality: QualityStatus(),
+                        position: 0,
+                        track: track,
+                        disc: disc)
         if thumbnail != "", let url = kodiAddress.baseUrl {
             song.coverURI = CoverURI.fullPathURI("\(url)image/\(thumbnail.addingPercentEncoding(withAllowedCharacters: .letters)!)")
         }
@@ -290,15 +291,15 @@ extension KodiSong {
 extension KodiAlbum {
     public func album(kodiAddress: KodiAddress) -> Album {
         var album = Album(id: "\(uniqueId)",
-            source: .Local,
-            location: "",
-            title: label,
-            artist: displayartist,
-            year: year,
-            genre: genre,
-            length: 0,
-            sortTitle: label,
-            sortArtist: displayartist)
+                          source: .Local,
+                          location: "",
+                          title: label,
+                          artist: displayartist,
+                          year: year,
+                          genre: genre,
+                          length: 0,
+                          sortTitle: label,
+                          sortArtist: displayartist)
         if thumbnail != "", let url = kodiAddress.baseUrl {
             album.coverURI = CoverURI.fullPathURI("\(url)image/\(thumbnail.addingPercentEncoding(withAllowedCharacters: .letters)!)")
         }
@@ -341,19 +342,20 @@ extension KodiFile {
                 albumartistToUse = displayartist ?? ""
             }
             var song = Song(id: "\(id)",
-                source: .Local,
-                location: file,
-                title: label,
-                album: album ?? "",
-                artist: displayartist ?? "",
-                albumartist: albumartistToUse,
-                composer: "",
-                year: year ?? 0,
-                genre: genre ?? [],
-                length: duration ?? 0,
-                quality: QualityStatus(),
-                position: 0,
-                track: track ?? 0)
+                            source: .Local,
+                            location: file,
+                            title: label,
+                            album: album ?? "",
+                            artist: displayartist ?? "",
+                            albumartist: albumartistToUse,
+                            composer: "",
+                            year: year ?? 0,
+                            genre: genre ?? [],
+                            length: duration ?? 0,
+                            quality: QualityStatus(),
+                            position: 0,
+                            track: track ?? 0,
+                            disc: disc ?? 0)
             if thumbnail != "", let url = kodiAddress.baseUrl {
                 song.coverURI = CoverURI.fullPathURI("\(url)image/\(thumbnail.addingPercentEncoding(withAllowedCharacters: .letters)!)")
             }
