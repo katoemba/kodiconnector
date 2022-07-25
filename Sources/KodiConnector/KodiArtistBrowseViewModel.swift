@@ -57,10 +57,11 @@ public class KodiArtistBrowseViewModel: ArtistBrowseViewModel {
         }
         else {
             multiSection = true
+            let kodiAddress = kodi.kodiAddress
             artistObservable = kodi.getArtists(start: 0, end: 100000, albumartistsonly: true)
                 .map({ (kodiArtists) -> [Artist] in
                     kodiArtists.artists.map({ (kodiArtist) -> Artist in
-                        kodiArtist.artist
+                        kodiArtist.artist(kodiAddress: kodiAddress)
                     })
                 })
                 .observe(on: MainScheduler.instance)

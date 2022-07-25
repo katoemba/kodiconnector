@@ -60,22 +60,23 @@ public class KodiBrowse: BrowseProtocol {
     }
     
     public func search(_ search: String, limit: Int, filter: [SourceType]) -> Observable<SearchResult> {
+        let kodiAddress = kodi.kodiAddress
         let songSearch = kodi.searchSongs(search, limit: limit)
             .map { (songs) -> ([Song]) in
                 songs.map({ (kodiSong) -> Song in
-                    kodiSong.song(kodiAddress: self.kodi.kodiAddress)
+                    kodiSong.song(kodiAddress: kodiAddress)
                 })
             }
         let albumSearch = kodi.searchAlbums(search, limit: limit)
             .map { (albums) -> ([Album]) in
                 albums.map({ (kodiAlbum) -> Album in
-                    kodiAlbum.album(kodiAddress: self.kodi.kodiAddress)
+                    kodiAlbum.album(kodiAddress: kodiAddress)
                 })
             }
         let artistSearch = kodi.searchArtists(search, limit: limit)
             .map { (artists) -> ([Artist]) in
                 artists.map({ (kodiArtist) -> Artist in
-                    kodiArtist.artist
+                    kodiArtist.artist(kodiAddress: kodiAddress)
                 })
             }
         
@@ -166,13 +167,14 @@ public class KodiBrowse: BrowseProtocol {
     public func artistFromSong(_ song: Song) -> Observable<Artist> {
         guard let songId = Int(song.id) else { return Observable.empty() }
         
+        let kodiAddress = kodi.kodiAddress
         return kodi.getSong(songId)
             .flatMap({ (kodiSong) -> Observable<KodiArtist> in
                 guard let artistIds = kodiSong.artistid, artistIds.count > 0 else { return Observable.empty() }
                 return self.kodi.getArtist(artistIds[0])
             })
             .map({ (kodiArtist) -> Artist in
-                kodiArtist.artist
+                kodiArtist.artist(kodiAddress: kodiAddress)
             })
     }
     
@@ -290,27 +292,36 @@ extension KodiSong {
 
 extension KodiAlbum {
     public func album(kodiAddress: KodiAddress) -> Album {
-        var album = Album(id: "\(uniqueId)",
-                          source: .Local,
-                          location: "",
-                          title: label,
-                          artist: displayartist,
-                          year: year,
-                          genre: genre,
-                          length: 0,
-                          sortTitle: label,
-                          sortArtist: displayartist)
-        if thumbnail != "", let url = kodiAddress.baseUrl {
-            album.coverURI = CoverURI.fullPathURI("\(url)image/\(thumbnail.addingPercentEncoding(withAllowedCharacters: .letters)!)")
-        }
+        let coverURI = (thumbnail != "" && kodiAddress.baseUrl != nil)
+        ? CoverURI.fullPathURI("\(kodiAddress.baseUrl!)image/\(thumbnail.addingPercentEncoding(withAllowedCharacters: .letters)!)")
+        : CoverURI.fullPathURI("")
         
-        return album
+        return Album(id: "\(uniqueId)",
+                     source: .Local,
+                     location: "",
+                     title: label,
+                     artist: displayartist,
+                     year: year,
+                     genre: genre,
+                     length: 0,
+                     sortTitle: label,
+                     sortArtist: displayartist,
+                     coverURI: coverURI)
     }
 }
 
 extension KodiArtist {
-    var artist: Artist {
-        return Artist(id: "\(uniqueId)", type: .artist, source: .Local, name: label, sortName: label)
+    public func artist(kodiAddress: KodiAddress) -> Artist {
+        let coverURI = (thumbnail != "" && kodiAddress.baseUrl != nil)
+        ? CoverURI.fullPathURI("\(kodiAddress.baseUrl!)image/\(thumbnail.addingPercentEncoding(withAllowedCharacters: .letters)!)")
+        : CoverURI.fullPathURI("")
+
+        return Artist(id: "\(uniqueId)",
+                      type: .artist,
+                      source: .Local,
+                      name: label,
+                      sortName: label,
+                      coverURI: coverURI)
     }
 }
 
