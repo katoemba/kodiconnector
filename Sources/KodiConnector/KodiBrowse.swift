@@ -211,6 +211,42 @@ public class KodiBrowse: BrowseProtocol {
             }
     }
     
+    /// Complete data for a song
+    /// - Parameter song: a song for which data must be completed
+    /// - Returns: an observable song
+    public func complete(_ song: Song) -> Observable<Song> {
+        guard let songid = Int(song.id) else { return Observable.empty() }
+        let kodiAddress = kodi.kodiAddress
+        return kodi.getSong(songid)
+            .map {
+                $0.song(kodiAddress: kodiAddress)
+            }
+    }
+
+    /// Complete data for an album
+    /// - Parameter album: an album for which data must be completed
+    /// - Returns: an observable album
+    public func complete(_ album: Album) -> Observable<Album> {
+        guard let albumid = Int(album.id) else { return Observable.empty() }
+        let kodiAddress = kodi.kodiAddress
+        return kodi.getAlbum(albumid)
+            .map {
+                $0.album(kodiAddress: kodiAddress)
+            }
+    }
+
+    /// Complete data for an artist
+    /// - Parameter artist: an artist for which data must be completed
+    /// - Returns: an observable artist
+    public func complete(_ artist: Artist) -> Observable<Artist> {
+        guard let artistid = Int(artist.id) else { return Observable.empty() }
+        let kodiAddress = kodi.kodiAddress
+        return kodi.getArtist(artistid)
+            .map {
+                $0.artist(kodiAddress: kodiAddress)
+            }
+    }
+
     public func diagnostics(album: Album) -> Observable<String> {
         return Observable.empty()
     }
