@@ -18,7 +18,18 @@ public class KodiBrowse: BrowseProtocol {
     }
     
     public func songsByArtist(_ artist: Artist) -> Observable<[Song]> {
-        return Observable.empty()
+        guard let artistId = Int(artist.id) else {
+            return Observable.just([])
+        }
+        
+        let kodiAddress = self.kodi.kodiAddress
+        return kodi.getSongsByArtist(artistId)
+            .map({ (kodiSongs) -> [Song] in
+                return kodiSongs.map({ (kodiSong) -> Song in
+                    kodiSong.song(kodiAddress: kodiAddress)
+                })
+            })
+            .catchAndReturn([])
     }
     
     public func albumsByArtist(_ artist: Artist, sort: SortType) -> Observable<[Album]> {
@@ -30,12 +41,11 @@ public class KodiBrowse: BrowseProtocol {
             return Observable.just([])
         }
         
+        let kodiAddress = self.kodi.kodiAddress
         return kodi.getSongsOnAlbum(albumId)
-            .map({ [weak self] (kodiSongs) -> [Song] in
-                guard let weakSelf = self else { return [] }
-                
+            .map({ (kodiSongs) -> [Song] in
                 return kodiSongs.map({ (kodiSong) -> Song in
-                    kodiSong.song(kodiAddress: weakSelf.kodi.kodiAddress)
+                    kodiSong.song(kodiAddress: kodiAddress)
                 })
             })
             .catchAndReturn([])
@@ -194,7 +204,11 @@ public class KodiBrowse: BrowseProtocol {
     /// - Parameter artist: the set of artists to check
     /// - Returns: an observable of the filtered array of artists
     public func existingArtists(artists: [Artist]) -> Observable<[Artist]> {
-        return Observable.just(artists)
+        let kodiAddress = kodi.kodiAddress
+        return kodi.searchArtists(artists.map { $0.name}, limit: 0)
+            .map {
+                $0.map { $0.artist(kodiAddress: kodiAddress) }
+            }
     }
     
     public func diagnostics(album: Album) -> Observable<String> {

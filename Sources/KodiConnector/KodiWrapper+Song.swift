@@ -97,6 +97,12 @@ extension KodiWrapper {
                                   start: 0, end: 0)
     }
  
+    public func getSongsByArtist(_ artistid: Int) -> Observable<[KodiSong]> {
+        return getSongsWithFilter(["artistid": artistid],
+                                  sort: ["method": "track", "order": "ascending"],
+                                  start: 0, end: 0)
+    }
+
     public func searchSongs(_ search: String, limit: Int) -> Observable<[KodiSong]> {
         return getSongsWithFilter(["field": "title", "operator": "contains", "value": search],
                                   sort: ["method": "playcount", "order": "descending"],

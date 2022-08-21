@@ -117,6 +117,15 @@ extension KodiWrapper {
             })
     }
 
+    public func searchArtists(_ search: [String], limit: Int) -> Observable<[KodiArtist]> {
+        return getArtistsWithFilter(["field": "artist", "operator": "contains", "value": search],
+                                    sort: ["order": "ascending", "method": "artist", "ignorearticle": true],
+                                    limit: limit)
+            .map({ (kodiArtists) -> [KodiArtist] in
+                kodiArtists.artists
+            })
+    }
+    
     public func playArtist(_ artistid: Int, shuffle: Bool) -> Observable<Bool> {
         let parameters = ["jsonrpc": "2.0",
                           "method": "Player.Open",

@@ -230,6 +230,7 @@ public protocol KodiProtocol {
     func getCurrentSong() -> Observable<KodiSong?>
     func getSong(_ songid: Int) -> Observable<KodiSong>
     func getSongsOnAlbum(_ albumid: Int) -> Observable<[KodiSong]>
+    func getSongsByArtist(_ artistid: Int) -> Observable<[KodiSong]>
     func getSongsWithFilter(_ filter: [String: Any], sort: [String: Any], start: Int, end: Int) -> Observable<[KodiSong]>
     func allSongIds() -> Observable<[Int]>
     func searchSongs(_ search: String, limit: Int) -> Observable<[KodiSong]>
@@ -252,6 +253,7 @@ public protocol KodiProtocol {
     func getArtistId(_ name: String) -> Observable<Int>
     func getArtist(_ artistid: Int) -> Observable<KodiArtist>
     func searchArtists(_ search: String, limit: Int) -> Observable<[KodiArtist]>
+    func searchArtists(_ search: [String], limit: Int) -> Observable<[KodiArtist]>
     func playArtist(_ artistid: Int, shuffle: Bool) -> Observable<Bool>
 
     func getGenres() -> Observable<KodiGenres>
