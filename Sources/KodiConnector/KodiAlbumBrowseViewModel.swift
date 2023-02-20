@@ -14,12 +14,12 @@ import ConnectorProtocol
 public class KodiAlbumBrowseViewModel: AlbumBrowseViewModel {
     private var loadProgress = BehaviorRelay<LoadProgress>(value: .notStarted)
     public var loadProgressObservable: Observable<LoadProgress> {
-        return loadProgress.asObservable()
+        return loadProgress.observe(on: MainScheduler.asyncInstance)
     }
     
     private var albumsSubject = PublishSubject<[Album]>()
     public var albumsObservable: Observable<[Album]> {
-        return albumsSubject.asObservable()
+        return albumsSubject.observe(on: MainScheduler.asyncInstance)
     }
     private let extendTriggerSubject = PublishSubject<Int>()
     private let limitsSubject = ReplaySubject<Limits>.create(bufferSize: 1)
@@ -77,6 +77,8 @@ public class KodiAlbumBrowseViewModel: AlbumBrowseViewModel {
                 load(genre: genre)
             case let .artist(artist):
                 load(artist: artist)
+            case let .related(album):
+                load(artist: Artist(id: album.artist, source: album.source, name: album.artist), excludeAlbum: album)
             case let .recent(duration):
                 loadRecent(count: duration)
             case let .random(count):
@@ -134,7 +136,7 @@ public class KodiAlbumBrowseViewModel: AlbumBrowseViewModel {
             .disposed(by: bag)
     }
     
-    private func load(artist: Artist) {
+    private func load(artist: Artist, excludeAlbum: Album? = nil) {
         var artistIdObservable: Observable<Int>
         if let artistId = Int(artist.id) {
             artistIdObservable = Observable.just(artistId)
@@ -156,8 +158,12 @@ public class KodiAlbumBrowseViewModel: AlbumBrowseViewModel {
         .map({ [weak self] (kodiAlbums) -> [Album] in
             guard let weakSelf = self else { return [] }
             
-            return kodiAlbums.albums.map({ (kodiAlbum) -> Album in
-                kodiAlbum.album(kodiAddress: weakSelf.kodi.kodiAddress)
+            return kodiAlbums.albums.compactMap({ (kodiAlbum) -> Album? in
+                let album = kodiAlbum.album(kodiAddress: weakSelf.kodi.kodiAddress)
+                if let excludeAlbum {
+                    return (album == excludeAlbum) ? nil : album
+                }
+                return album
             })
         })
             .subscribe(onNext: { [weak self] (albums) in
@@ -269,7 +275,7 @@ public class KodiAlbumBrowseViewModel: AlbumBrowseViewModel {
         extendTriggerSubject.onNext(1)
     }
     
-    public func extend(to: Int) {
+    public func prefetch(to: Int) {
         Observable.just(1)
             .withLatestFrom(limitsSubject)
             .filter { (limits) -> Bool in

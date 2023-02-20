@@ -40,9 +40,6 @@ public class KodiFolderBrowseViewModel: FolderBrowseViewModel {
         }
     }
     
-    public func extend() {
-    }
-    
     private func reload() {
         loadProgress.accept(.loading)
         

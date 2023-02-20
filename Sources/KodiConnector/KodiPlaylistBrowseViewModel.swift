@@ -71,9 +71,6 @@ public class KodiPlaylistBrowseViewModel: PlaylistBrowseViewModel {
             .disposed(by: bag)
     }
     
-    public func extend() {
-    }
-    
     public func renamePlaylist(_ playlist: Playlist, to: String) -> Playlist {
         return Playlist()
     }

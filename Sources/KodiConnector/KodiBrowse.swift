@@ -112,7 +112,11 @@ public class KodiBrowse: BrowseProtocol {
     public func albumBrowseViewModel(_ artist: Artist) -> AlbumBrowseViewModel {
         return KodiAlbumBrowseViewModel(kodi: kodi, filters: [.artist(artist)])
     }
-    
+
+    public func albumBrowseViewModel(_ album: Album) -> AlbumBrowseViewModel {
+        return KodiAlbumBrowseViewModel(kodi: kodi, filters: [.related(album)])
+    }
+
     public func albumBrowseViewModel(_ genre: Genre) -> AlbumBrowseViewModel {
         return KodiAlbumBrowseViewModel(kodi: kodi, filters: [.genre(genre)])
     }

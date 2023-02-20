@@ -184,9 +184,6 @@ public class KodiSongBrowseViewModel: SongBrowseViewModel {
             .disposed(by: bag)
     }
     
-    public func extend() {
-    }
-    
     public func removeSong(at: Int) {
         Observable.just(at)
             .withLatestFrom(songsSubject) { (at, songs) in

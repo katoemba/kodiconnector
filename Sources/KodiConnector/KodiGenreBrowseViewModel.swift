@@ -46,7 +46,4 @@ public class KodiGenreBrowseViewModel: GenreBrowseViewModel {
             .bind(to: genresSubject)
             .disposed(by: bag)
     }
-    
-    public func extend() {
-    }    
 }
