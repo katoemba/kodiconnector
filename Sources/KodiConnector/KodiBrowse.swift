@@ -12,6 +12,8 @@ import RxSwift
 
 public class KodiBrowse: BrowseProtocol {
     private var kodi: KodiProtocol
+
+    public var name = "Kodi"
     
     public init(kodi: KodiProtocol) {
         self.kodi = kodi
