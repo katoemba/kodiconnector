@@ -114,7 +114,7 @@ public class KodiStatus: StatusProtocol {
                 return kodiSongs.map({ (kodiSong) -> Song in
                     var song = kodiSong.song(kodiAddress: weakSelf.kodi.kodiAddress)
                     song.position = position
-                    song.playqueueId = "\(position)"
+                    song.playqueueId = UUID().uuidString
                     position += 1
                     
                     return song

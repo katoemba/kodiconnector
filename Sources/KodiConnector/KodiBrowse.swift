@@ -62,7 +62,8 @@ public class KodiBrowse: BrowseProtocol {
                 return files.compactMap({ (kodiFile) -> Song? in
                     let folderContent = kodiFile.folderContent(kodiAddress: weakSelf.kodi.kodiAddress)
                     
-                    if case let .song(song)? = folderContent {
+                    if case var .song(song)? = folderContent {
+                        song.playqueueId = UUID().uuidString
                         return song
                     }
                     return nil
