@@ -254,10 +254,6 @@ public class KodiBrowse: BrowseProtocol {
             }
     }
 
-    public func diagnostics(album: Album) -> Observable<String> {
-        return Observable.empty()
-    }
-    
     /// Search for the existance a certain item
     /// - Parameter searchItem: what to search for
     /// - Returns: an observable array of results
