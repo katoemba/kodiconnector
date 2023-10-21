@@ -56,7 +56,7 @@ public class KodiStatus: StatusProtocol {
         let playerStatusSubject = self.playerStatus
         Observable<Int>
             .timer(RxTimeInterval.seconds(1), period: RxTimeInterval.seconds(1), scheduler: elapsedTimeScheduler)
-            .filter({ [weak self] (_) -> Bool in
+            .filter({ [weak self] (_: Int) -> Bool in
                 self?.socket.isConnected ?? false
             })
             .withLatestFrom(playerStatus)
