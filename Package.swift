@@ -1,11 +1,11 @@
-// swift-tools-version:5.1
+// swift-tools-version:5.9
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
 
 let package = Package(
     name: "KodiConnector",
-    platforms: [.macOS(.v10_11), .iOS(.v10), .tvOS(.v9), .watchOS(.v3)],
+    platforms: [.macOS(.v12), .iOS(.v14), .watchOS(.v10)],
     products: [
         // Products define the executables and libraries produced by a package, and make them visible to other packages.
         .library(name: "KodiConnector", targets: ["KodiConnector"])
@@ -23,7 +23,12 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages which this package depends on.
         .target(
             name: "KodiConnector",
-            dependencies: ["ConnectorProtocol", "RxNetService", "RxSwift", "RxRelay", "RxSwiftExt", "Starscream"]),
+            dependencies: [.product(name: "ConnectorProtocol", package: "connectorprotocol"),
+                           .product(name: "RxNetService", package: "rxnetservice"),
+                           .product(name: "RxRelay", package: "rxswift"),
+                           .product(name: "RxSwift", package: "rxswift"),
+                           .product(name: "RxSwiftExt", package: "rxswiftext"),
+                           .product(name: "Starscream", package: "starscream")]),
         .testTarget(
             name: "KodiConnectorTests",
             dependencies: ["KodiConnector"])
