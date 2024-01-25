@@ -1,61 +1,59 @@
 {
-  "object": {
-    "pins": [
-      {
-        "package": "ConnectorProtocol",
-        "repositoryURL": "https://github.com/katoemba/connectorprotocol.git",
-        "state": {
-          "branch": null,
-          "revision": "5434ec62ea6bb1e68f8e7137e3968be6e58aaf46",
-          "version": "1.8.7"
-        }
-      },
-      {
-        "package": "RxNetService",
-        "repositoryURL": "https://github.com/katoemba/rxnetservice.git",
-        "state": {
-          "branch": null,
-          "revision": "1c9298e859ef0a79d6304bed3ca8a195e6a53dd0",
-          "version": "0.2.4"
-        }
-      },
-      {
-        "package": "RxSwift",
-        "repositoryURL": "https://github.com/ReactiveX/RxSwift.git",
-        "state": {
-          "branch": null,
-          "revision": "7c17a6ccca06b5c107cfa4284e634562ddaf5951",
-          "version": "6.2.0"
-        }
-      },
-      {
-        "package": "RxSwiftExt",
-        "repositoryURL": "https://github.com/RxSwiftCommunity/RxSwiftExt.git",
-        "state": {
-          "branch": null,
-          "revision": "a42af9caeab63f2dbde318f1f3dc424f05871a37",
-          "version": "6.1.0"
-        }
-      },
-      {
-        "package": "Starscream",
-        "repositoryURL": "https://github.com/daltoniam/Starscream.git",
-        "state": {
-          "branch": null,
-          "revision": "e6b65c6d9077ea48b4a7bdda8994a1d3c6969c8d",
-          "version": "3.1.1"
-        }
-      },
-      {
-        "package": "swift-nio-zlib-support",
-        "repositoryURL": "https://github.com/apple/swift-nio-zlib-support.git",
-        "state": {
-          "branch": null,
-          "revision": "37760e9a52030bb9011972c5213c3350fa9d41fd",
-          "version": "1.0.0"
-        }
+  "pins" : [
+    {
+      "identity" : "connectorprotocol",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/katoemba/connectorprotocol.git",
+      "state" : {
+        "revision" : "627b3d3ff0a8411b0b9909bd7d89f5a2bed02415",
+        "version" : "1.10.0"
       }
-    ]
-  },
-  "version": 1
+    },
+    {
+      "identity" : "rxnetservice",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/katoemba/rxnetservice.git",
+      "state" : {
+        "revision" : "1c9298e859ef0a79d6304bed3ca8a195e6a53dd0",
+        "version" : "0.2.4"
+      }
+    },
+    {
+      "identity" : "rxswift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/ReactiveX/RxSwift.git",
+      "state" : {
+        "revision" : "7c17a6ccca06b5c107cfa4284e634562ddaf5951",
+        "version" : "6.2.0"
+      }
+    },
+    {
+      "identity" : "rxswiftext",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/RxSwiftCommunity/RxSwiftExt.git",
+      "state" : {
+        "revision" : "a42af9caeab63f2dbde318f1f3dc424f05871a37",
+        "version" : "6.1.0"
+      }
+    },
+    {
+      "identity" : "starscream",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/daltoniam/Starscream.git",
+      "state" : {
+        "revision" : "e6b65c6d9077ea48b4a7bdda8994a1d3c6969c8d",
+        "version" : "3.1.1"
+      }
+    },
+    {
+      "identity" : "swift-nio-zlib-support",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-nio-zlib-support.git",
+      "state" : {
+        "revision" : "37760e9a52030bb9011972c5213c3350fa9d41fd",
+        "version" : "1.0.0"
+      }
+    }
+  ],
+  "version" : 2
 }

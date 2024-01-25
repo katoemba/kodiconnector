@@ -132,6 +132,7 @@ public class KodiStatus: StatusProtocol {
             .disposed(by: bag)
     }
     
+    /// Get the current status from the player
     public func getStatus() -> Observable<PlayerStatus> {
         let kodi = self.kodi
         return Observable.just(1)
