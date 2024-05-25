@@ -152,13 +152,8 @@ public class KodiBrowse: BrowseProtocol {
         return KodiSongBrowseViewModel(kodi: kodi, songs: songs)
     }
     
-    public func songBrowseViewModel(_ album: Album, artist: Artist?) -> SongBrowseViewModel {
-        if let artist = artist {
-            return KodiSongBrowseViewModel(kodi: kodi, filter: .album(album), subFilter: .artist(artist))
-        }
-        else {
-            return KodiSongBrowseViewModel(kodi: kodi, filter: .album(album))
-        }
+    public func songBrowseViewModel(_ album: Album) -> SongBrowseViewModel {
+        return KodiSongBrowseViewModel(kodi: kodi, filter: .album(album))
     }
     
     public func songBrowseViewModel(_ playlist: Playlist) -> SongBrowseViewModel {
