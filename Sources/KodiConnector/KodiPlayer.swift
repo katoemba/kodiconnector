@@ -55,12 +55,19 @@ public class KodiPlayer: PlayerProtocol {
     public var connectionProperties: [String : Any] {
         get {
             let password = (self.loadSetting(id: ConnectionProperties.password.rawValue) as? StringSetting)?.value ?? ""
+            let urlCoverArt = (self.loadSetting(id: ConnectionProperties.urlCoverArt.rawValue) as? ToggleSetting)?.value ?? false
+            let discogsCoverArt = (self.loadSetting(id: ConnectionProperties.discogsCoverArt.rawValue) as? ToggleSetting)?.value ?? false
+            let musicbrainzCoverArt = (self.loadSetting(id: ConnectionProperties.musicbrainzCoverArt.rawValue) as? ToggleSetting)?.value ?? false
+
             return [ConnectionProperties.controllerType.rawValue: KodiPlayer.controllerType,
                     ConnectionProperties.name.rawValue: name,
                     ConnectionProperties.host.rawValue: host,
                     ConnectionProperties.port.rawValue: port,
                     KodiConnectionProperties.websocketPort.rawValue: websocketPort,
-                    ConnectionProperties.password.rawValue: password]
+                    ConnectionProperties.password.rawValue: password,
+                    ConnectionProperties.urlCoverArt.rawValue: urlCoverArt,
+                    ConnectionProperties.discogsCoverArt.rawValue: discogsCoverArt,
+                    ConnectionProperties.musicbrainzCoverArt.rawValue: musicbrainzCoverArt]
         }
     }
     
@@ -137,7 +144,12 @@ public class KodiPlayer: PlayerProtocol {
         if password != nil {
             userDefaults.set(password, forKey: ConnectionProperties.password.rawValue + "." + initialUniqueID)
         }
-        
+        if userDefaults.object(forKey: ConnectionProperties.urlCoverArt.rawValue) == nil {
+            userDefaults.set(true, forKey: ConnectionProperties.urlCoverArt.rawValue)
+            userDefaults.set(false, forKey: ConnectionProperties.discogsCoverArt.rawValue)
+            userDefaults.set(false, forKey: ConnectionProperties.musicbrainzCoverArt.rawValue)
+        }
+
         self.scheduler = scheduler
         self.connectionWarning = connectionWarning
         self.version = version
@@ -225,11 +237,15 @@ public class KodiPlayer: PlayerProtocol {
     /// Return the settings definition for a player.
     public var settings: [PlayerSettingGroup] {
         get {
-            return [PlayerSettingGroup(title: "Player Settings", description: "", settings:[ loadSetting(id: ConnectionProperties.name.rawValue)!,
+            var settingsToReturn = [PlayerSettingGroup]()
+
+            let playerSettings = PlayerSettingGroup(title: "Player Settings", description: "", settings:[ loadSetting(id: ConnectionProperties.name.rawValue)!,
                                                                                              loadSetting(id: ConnectionProperties.host.rawValue)!,
                                                                                              loadSetting(id: ConnectionProperties.port.rawValue)!,
-                                                                                             loadSetting(id: KodiConnectionProperties.websocketPort.rawValue)!]),
-                    PlayerSettingGroup(title: "Music Library", description: "", settings:[ActionSetting.init(id: "KodiScan", description: "Rescan library", action: { [weak self] () -> Observable<String> in
+                                                                                             loadSetting(id: KodiConnectionProperties.websocketPort.rawValue)!])
+            settingsToReturn.append(playerSettings)
+            
+            let librarySettings = PlayerSettingGroup(title: "Music Library", description: "", settings:[ActionSetting.init(id: "KodiScan", description: "Rescan library", action: { [weak self] () -> Observable<String> in
                         guard let weakSelf = self else { return Observable.just("Scan not initiated") }
                         return weakSelf.kodi.scan()
                             .map({ (result) -> String in
@@ -242,7 +258,18 @@ public class KodiPlayer: PlayerProtocol {
                                                                                                 .map({ (result) -> String in
                                                                                                     result == true ? "Cleanup initiated" : "Cleanup not initiated"
                                                                                                 })
-                                                                                          })])]
+                                                                                          })])
+            settingsToReturn.append(librarySettings)
+
+            let coverArtDescription = "These settings define how cover art is retrieved. Always leave 'Standard URL' enabled. Discogs and MusicBrainz can be used as " +
+                "backup for albums / tracks for which no cover art is present in your media library."
+            let coverArtSettings: [PlayerSetting] = [loadSetting(id: ConnectionProperties.urlCoverArt.rawValue)!,
+                                                     loadSetting(id: ConnectionProperties.discogsCoverArt.rawValue)!,
+                                                     loadSetting(id: ConnectionProperties.musicbrainzCoverArt.rawValue)!]
+            let coverArtSettingGroup = PlayerSettingGroup(title: "Cover Art Sources", description: coverArtDescription, settings: coverArtSettings)
+            settingsToReturn.append(coverArtSettingGroup)
+            
+            return settingsToReturn
         }
     }
     
@@ -265,6 +292,9 @@ public class KodiPlayer: PlayerProtocol {
             userDefaults.synchronize()
             
             settingsChangedSubject?.onNext(self)
+        }
+        else if let toggleSetting = setting as? ToggleSetting {
+            userDefaults.set(toggleSetting.value, forKey: playerSpecificId)
         }
     }
     
@@ -310,7 +340,22 @@ public class KodiPlayer: PlayerProtocol {
                                       value: userDefaults.string(forKey: playerSpecificId) ?? "",
                                       restriction: .password)
         }
-        
+        else if id == ConnectionProperties.urlCoverArt.rawValue {
+            return ToggleSetting.init(id: id,
+                                      description: "Standard URL",
+                                      value: userDefaults.bool(forKey: playerSpecificId))
+        }
+        else if id == ConnectionProperties.discogsCoverArt.rawValue {
+            return ToggleSetting.init(id: id,
+                                      description: "Discogs",
+                                      value: userDefaults.bool(forKey: playerSpecificId))
+        }
+        else if id == ConnectionProperties.musicbrainzCoverArt.rawValue {
+            return ToggleSetting.init(id: id,
+                                      description: "Musicbrainz",
+                                      value: userDefaults.bool(forKey: playerSpecificId))
+        }
+
         return nil
     }
     
