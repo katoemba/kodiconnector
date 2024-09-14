@@ -359,4 +359,7 @@ public class KodiPlayer: PlayerProtocol {
         return nil
     }
     
+    public func ping() async -> Bool {
+        return true
+    }
 }

@@ -311,6 +311,20 @@ public class KodiBrowse: BrowseProtocol {
             return Observable.just([])
         }
     }
+    
+    /// Select a number of random songs from the collection
+    /// - Parameter count: the number of songs to return
+    /// - Returns: an array of songs
+    public func randomSongs(_ count: Int) async throws -> [Song] {
+        throw ControlError.notImplemented(function: "randomSongs")
+    }
+    
+    /// Select a random album from the collection
+    /// - Parameter count: the number of albums to return
+    /// - Returns: the selected albums
+    public func randomAlbums(_ count: Int) async throws -> [Album] {
+        throw ControlError.notImplemented(function: "randomAlbums")
+    }
 }
 
 extension KodiSong {
