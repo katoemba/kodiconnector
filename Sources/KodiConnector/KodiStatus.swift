@@ -292,7 +292,7 @@ public class KodiStatus: StatusProtocol {
         playerStatus.lastUpdateTime = Date()
         if kodi.stream == .video {
             if let title = notification.data.item.title {
-                playerStatus.currentSong = Song(id: title, source: .Shoutcast, location: lastStationUrl ?? "", title: title, album: "", artist: "", albumartist: "", composer: "", year: 0, genre: [], length: 0, quality: QualityStatus())
+                playerStatus.currentSong = Song(id: title, source: .Radio, location: lastStationUrl ?? "", title: title, album: "", artist: "", albumartist: "", composer: "", year: 0, genre: [], length: 0, quality: QualityStatus())
             }
         }
         else if playerStatus.currentSong.id != "\(notification.data.item.id ?? 0)" || isPlaying == true {
