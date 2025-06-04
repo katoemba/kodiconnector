@@ -419,7 +419,7 @@ public class KodiControl: ControlProtocol {
     public func savePlaylist(_ name: String) {
     }
     
-    public func clearPlayqueue() {
+    public func clearPlayqueue(from: Int?, to: Int?) {
         let kodi = self.kodi
         
         _ = kodi.getPlayerProperties()
