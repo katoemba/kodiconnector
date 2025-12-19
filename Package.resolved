@@ -5,8 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/katoemba/connectorprotocol.git",
       "state" : {
-        "revision" : "627b3d3ff0a8411b0b9909bd7d89f5a2bed02415",
-        "version" : "1.10.0"
+        "branch" : "master",
+        "revision" : "b99e24980756574274db2945534a29ff3d469b55"
       }
     },
     {
@@ -23,8 +23,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ReactiveX/RxSwift.git",
       "state" : {
-        "revision" : "7c17a6ccca06b5c107cfa4284e634562ddaf5951",
-        "version" : "6.2.0"
+        "revision" : "5004a18539bd68905c5939aa893075f578f4f03d",
+        "version" : "6.9.1"
       }
     },
     {
